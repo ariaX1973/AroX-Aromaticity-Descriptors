@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# AroX outputs generated when running on the examples
+# (the reference .arx / .LDM files committed in examples/ are kept;
+#  any *new* output produced by the user locally is ignored)
+examples/output/
+examples/**/output/

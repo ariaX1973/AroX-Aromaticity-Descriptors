@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use AroX in academic work, please cite it as below."
+title: "AroX — Aromaticity Descriptors (HOMA + LDM)"
+abstract: >-
+  AroX is an open-source Python program for the automated computation of
+  aromaticity descriptors of organic cycles. It detects elementary,
+  peripheral and fused rings from a molecular geometry or distance matrix
+  and computes the HOMA index (Harmonic Oscillator Model of Aromaticity)
+  and the LDM index (Local Distortion of Multiplicity / Local Density
+  Matrix descriptor) on each ring, including MD-trajectory mode.
+type: software
+version: "0.2.0"
+date-released: 2026-06-29
+license: MIT
+repository-code: "https://github.com/ariaX1973/AroX-Aromaticity-Descriptors"
+keywords:
+  - aromaticity
+  - HOMA
+  - LDM
+  - polycyclic aromatic hydrocarbons
+  - quantum chemistry
+  - molecular descriptors
+authors:
+  - family-names: Noroozi
+    given-names: Aria
+    affiliation: "Laboratoire de Chimie Théorique (LCT)"
+preferred-citation:
+  type: software
+  title: "AroX — Aromaticity Descriptors (HOMA + LDM)"
+  version: "0.2.0"
+  year: 2026
+  authors:
+    - family-names: Noroozi
+      given-names: Aria
+      affiliation: "Laboratoire de Chimie Théorique (LCT)"
+  url: "https://github.com/ariaX1973/AroX-Aromaticity-Descriptors"

@@ -1,0 +1,202 @@
+===============================================================
+                 LDM AROMATICITY ANALYSIS REPORT
+===============================================================
+ Input LDM file      : Benzen_rho_ldm.dat
+ Input DIST file     : Benzen_rho_dist.dat
+ Output file         : Benzen_rho_ldm.LDM
+ Reference type      : EG
+ epsilon_O           : 0.583333
+ epsilon_P           : 0.166667
+ epsilon_M           : 0.083333
+ N_A                 : 6.000000
+ lambda (benzene EG) : 4.500000
+ lambda formula      : lambda = N_A - somme(hors-diagonale ligne)
+===============================================================
+
+ Détection automatique des carbones
+ ------------------------------
+ Atome   1 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome   2 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome   3 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome   4 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome   5 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome   6 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+
+ Connectivité détectée
+ ------------------------------
+ Atome   1 -> voisins : [2, 6, 7]
+ Atome   2 -> voisins : [1, 3, 8]
+ Atome   3 -> voisins : [2, 4, 9]
+ Atome   4 -> voisins : [3, 5, 10]
+ Atome   5 -> voisins : [4, 6, 11]
+ Atome   6 -> voisins : [1, 5, 12]
+ Atome   7 -> voisins : [1]
+ Atome   8 -> voisins : [2]
+ Atome   9 -> voisins : [3]
+ Atome  10 -> voisins : [4]
+ Atome  11 -> voisins : [5]
+ Atome  12 -> voisins : [6]
+
+ Cycles détectés automatiquement
+ ------------------------------
+ Cycle  1 | type = ELEMENTAIRE   | taille = 6  | indices = [1, 2, 3, 4, 5, 6] | origine = AUTO        | cordes = 0  | statut = TRAITE
+
+
+===============================================================
+ Cycle number        : 1
+ Cycle type          : ELEMENTAIRE
+ Cycle size          : 6
+ Cycle indices       : [1, 2, 3, 4, 5, 6]
+ Cycle status        : TRAITE
+ Cycle origin        : AUTO
+ N_pi reference      : 3
+ Number of orbits    : 3
+ Lambda              : 4.500000
+ Symmetric submatrix : True
+ Max asymmetry       : 0.000000e+00
+
+REAL LDM SUBMATRIX
+------------------------------
+ 3.978700 0.696100 0.037000 0.051500 0.036600 0.696200
+ 0.696100 3.979800 0.696100 0.036600 0.051300 0.036600
+ 0.037000 0.696100 3.978700 0.696200 0.036600 0.051500
+ 0.051500 0.036600 0.696200 3.978700 0.696100 0.037000
+ 0.036600 0.051300 0.036600 0.696100 3.979800 0.696100
+ 0.696200 0.036600 0.051500 0.037000 0.696100 3.978700
+
+REFERENCE MATRIX (6x6)
+------------------------------
+ 4.500000 0.583333 0.083333 0.166667 0.083333 0.583333
+ 0.583333 4.500000 0.583333 0.083333 0.166667 0.083333
+ 0.083333 0.583333 4.500000 0.583333 0.083333 0.166667
+ 0.166667 0.083333 0.583333 4.500000 0.583333 0.083333
+ 0.083333 0.166667 0.083333 0.583333 4.500000 0.583333
+ 0.583333 0.083333 0.166667 0.083333 0.583333 4.500000
+
+DIFFERENCE MATRIX : DELTA = REAL - REFERENCE
+------------------------------
+ -0.521300 0.112767 -0.046333 -0.115167 -0.046733 0.112867
+ 0.112767 -0.520200 0.112767 -0.046733 -0.115367 -0.046733
+ -0.046333 0.112767 -0.521300 0.112867 -0.046733 -0.115167
+ -0.115167 -0.046733 0.112867 -0.521300 0.112767 -0.046333
+ -0.046733 -0.115367 -0.046733 0.112767 -0.520200 0.112767
+ 0.112867 -0.046733 -0.115167 -0.046333 0.112767 -0.521300
+
+DISTANCES AND CONTRIBUTIONS
+------------------------------
+ Frobenius distance (full) : 1.373553
+ Diagonal contribution     : 1.276021
+ Off-diagonal contribution : 0.508348
+ RMS matricielle           : 0.228926
+ RMS hors diagonale        : 0.092811
+ Final rank                : 1
+
+Q WEIGHTED ANALYSIS
+------------------------------
+ Q Frobenius offdiag       : 0.305298
+ Q RMS offdiag             : 0.055739
+
+CHARGE TRANSFER ANALYSIS
+------------------------------
+ N_ref cycle               : 36.000000
+ Population real (trace)   : 23.874400
+ CT absolute               : -12.125600
+ CT relative (%)           : -33.682222
+
+AROMATIC HOMOGENEITY INDEX
+------------------------------
+ Number of unique pairs    : 15
+ S_cycle_hom               : 0.452270
+
+Q ANALYSIS
+------------------------------
+ Q Frobenius offdiag         : 0.305298
+ Q RMS offdiag              : 0.055739
+
+CHARGE TRANSFER ANALYSIS
+------------------------------
+ N_ref cycle                : 36.000000
+ Population real (trace)    : 23.874400
+ CT absolute                : -12.125600
+ CT relative (%)            : -33.682222
+
+HOMOGENEITY ANALYSIS BY ORBIT
+------------------------------
+ Orbit       n pairs          S_orb          sigma            H_k
+ ----------------------------------------------------------------------
+ ortho             6       0.970860       0.000066       0.999932
+ meta              6       0.088735       0.000455       0.994893
+ para              3       0.143463       0.000263       0.998170
+
+DETAIL OF x_ij = LDM_ij * r_ij BY ORBIT
+------------------------------
+ Orbit      Pair                     x_ij
+ -------------------------------------------------
+ ortho      (1, 2)               0.970813
+ ortho      (1, 6)               0.970953
+ ortho      (2, 3)               0.970813
+ ortho      (3, 4)               0.970953
+ ortho      (4, 5)               0.970813
+ ortho      (5, 6)               0.970813
+ meta       (1, 3)               0.089379
+ meta       (1, 5)               0.088412
+ meta       (2, 4)               0.088412
+ meta       (2, 6)               0.088412
+ meta       (3, 5)               0.088412
+ meta       (4, 6)               0.089379
+ para       (1, 4)               0.143649
+ para       (2, 5)               0.143091
+ para       (3, 6)               0.143649
+
+ Corrected orbit-homogeneity index (S_hom) : 0.452270
+
+ORBIT SUMMARY
+------------------------------
+ Orbit       n pairs     Ref. val    Mean real     Contrib.
+ --------------------------------------------------------------
+ ortho             6     0.583333     0.696133     0.276302
+ meta              6     0.083333     0.036733     0.114147
+ para              3     0.166667     0.051433     0.199590
+
+ORBIT HOMOGENEITY SUMMARY
+------------------------------
+ Orbit       n pairs        S_orb        sigma            H
+ ------------------------------------------------------------
+ ortho             6     0.970860     0.000066     0.999932
+ meta              6     0.088735     0.000455     0.994893
+ para              3     0.143463     0.000263     0.998170
+
+DETAILED ORBIT PAIR TABLE
+------------------------------
+ Orbit      Pair                   Real    Reference   Difference
+ ----------------------------------------------------------------
+ ortho      (1, 2)             0.696100     0.583333     0.112767
+ ortho      (1, 6)             0.696200     0.583333     0.112867
+ ortho      (2, 3)             0.696100     0.583333     0.112767
+ ortho      (3, 4)             0.696200     0.583333     0.112867
+ ortho      (4, 5)             0.696100     0.583333     0.112767
+ ortho      (5, 6)             0.696100     0.583333     0.112767
+ meta       (1, 3)             0.037000     0.083333    -0.046333
+ meta       (1, 5)             0.036600     0.083333    -0.046733
+ meta       (2, 4)             0.036600     0.083333    -0.046733
+ meta       (2, 6)             0.036600     0.083333    -0.046733
+ meta       (3, 5)             0.036600     0.083333    -0.046733
+ meta       (4, 6)             0.037000     0.083333    -0.046333
+ para       (1, 4)             0.051500     0.166667    -0.115167
+ para       (2, 5)             0.051300     0.166667    -0.115367
+ para       (3, 6)             0.051500     0.166667    -0.115167
+
+===============================================================
+FINAL SUMMARY
+===============================================================
+ Reference type : EG
+ epsilon_O      : 0.583333
+ epsilon_P      : 0.166667
+ epsilon_M      : 0.083333
+ lambda (6 EG)  : 4.500000
+ N_A            : 6.000000
+
+ No.  Type          Taille Indices                Origine     Statut                Frob full   Offdiag.      Diag.    RMS mat    RMS off         CT       CT %     Q Frob      Q RMS      S_hom
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 1    ELEMENTAIRE   6     [1, 2, 3, 4, 5, 6]     AUTO        TRAITE                 1.373553   0.508348   1.276021   0.228926   0.092811 -12.125600 -33.682222   0.305298   0.055739   0.452270
+

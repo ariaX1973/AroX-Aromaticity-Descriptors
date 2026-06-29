@@ -1,0 +1,364 @@
+===============================================================
+                 LDM AROMATICITY ANALYSIS REPORT
+===============================================================
+ Input LDM file      : Biphenyl_6-311+Gdp_rho_ldm.dat
+ Input DIST file     : Biphenyl_6-311+Gdp_rho_dist.dat
+ Output file         : Biphenyl_6-311+Gdp_rho_ldm.LDM
+ Reference type      : EG
+ epsilon_O           : 0.583333
+ epsilon_P           : 0.166667
+ epsilon_M           : 0.083333
+ N_A                 : 6.000000
+ lambda (benzene EG) : 4.500000
+ lambda formula      : lambda = N_A - somme(hors-diagonale ligne)
+===============================================================
+
+ Détection automatique des carbones
+ ------------------------------
+ Atome   1 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome   2 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome   3 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome   4 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome   5 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome   6 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome   7 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome   8 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome   9 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome  10 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome  11 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+ Atome  12 | C | voisins = 3 | type = sp2     | rayon = 0.73 Å
+
+ Connectivité détectée
+ ------------------------------
+ Atome   1 -> voisins : [2, 12, 13]
+ Atome   2 -> voisins : [1, 3, 14]
+ Atome   3 -> voisins : [2, 4, 15]
+ Atome   4 -> voisins : [3, 5, 11]
+ Atome   5 -> voisins : [4, 6, 10]
+ Atome   6 -> voisins : [5, 7, 16]
+ Atome   7 -> voisins : [6, 8, 17]
+ Atome   8 -> voisins : [7, 9, 18]
+ Atome   9 -> voisins : [8, 10, 19]
+ Atome  10 -> voisins : [5, 9, 20]
+ Atome  11 -> voisins : [4, 12, 21]
+ Atome  12 -> voisins : [1, 11, 22]
+ Atome  13 -> voisins : [1]
+ Atome  14 -> voisins : [2]
+ Atome  15 -> voisins : [3]
+ Atome  16 -> voisins : [6]
+ Atome  17 -> voisins : [7]
+ Atome  18 -> voisins : [8]
+ Atome  19 -> voisins : [9]
+ Atome  20 -> voisins : [10]
+ Atome  21 -> voisins : [11]
+ Atome  22 -> voisins : [12]
+
+ Cycles détectés automatiquement
+ ------------------------------
+ Cycle  1 | type = ELEMENTAIRE   | taille = 6  | indices = [1, 2, 3, 4, 11, 12] | origine = AUTO        | cordes = 0  | statut = TRAITE
+ Cycle  2 | type = ELEMENTAIRE   | taille = 6  | indices = [5, 6, 7, 8, 9, 10] | origine = AUTO        | cordes = 0  | statut = TRAITE
+
+
+===============================================================
+ Cycle number        : 2
+ Cycle type          : ELEMENTAIRE
+ Cycle size          : 6
+ Cycle indices       : [5, 6, 7, 8, 9, 10]
+ Cycle status        : TRAITE
+ Cycle origin        : AUTO
+ N_pi reference      : 3
+ Number of orbits    : 3
+ Lambda              : 4.500000
+ Symmetric submatrix : True
+ Max asymmetry       : 0.000000e+00
+
+REAL LDM SUBMATRIX
+------------------------------
+ 3.890400 0.671900 0.034000 0.047000 0.034000 0.671900
+ 0.671900 4.007900 0.699500 0.037500 0.049500 0.035500
+ 0.034000 0.699500 3.948400 0.693000 0.036300 0.049500
+ 0.047000 0.037500 0.693000 3.981800 0.693000 0.037500
+ 0.034000 0.049500 0.036300 0.693000 3.948500 0.699500
+ 0.671900 0.035500 0.049500 0.037500 0.699500 4.008000
+
+REFERENCE MATRIX (6x6)
+------------------------------
+ 4.500000 0.583333 0.083333 0.166667 0.083333 0.583333
+ 0.583333 4.500000 0.583333 0.083333 0.166667 0.083333
+ 0.083333 0.583333 4.500000 0.583333 0.083333 0.166667
+ 0.166667 0.083333 0.583333 4.500000 0.583333 0.083333
+ 0.083333 0.166667 0.083333 0.583333 4.500000 0.583333
+ 0.583333 0.083333 0.166667 0.083333 0.583333 4.500000
+
+DIFFERENCE MATRIX : DELTA = REAL - REFERENCE
+------------------------------
+ -0.609600 0.088567 -0.049333 -0.119667 -0.049333 0.088567
+ 0.088567 -0.492100 0.116167 -0.045833 -0.117167 -0.047833
+ -0.049333 0.116167 -0.551600 0.109667 -0.047033 -0.117167
+ -0.119667 -0.045833 0.109667 -0.518200 0.109667 -0.045833
+ -0.049333 -0.117167 -0.047033 0.109667 -0.551500 0.116167
+ 0.088567 -0.047833 -0.117167 -0.045833 0.116167 -0.492000
+
+DISTANCES AND CONTRIBUTIONS
+------------------------------
+ Frobenius distance (full) : 1.406036
+ Diagonal contribution     : 1.316353
+ Off-diagonal contribution : 0.494118
+ RMS matricielle           : 0.234339
+ RMS hors diagonale        : 0.090213
+ Final rank                : 1
+
+Q WEIGHTED ANALYSIS
+------------------------------
+ Q Frobenius offdiag       : 0.289636
+ Q RMS offdiag             : 0.052880
+
+CHARGE TRANSFER ANALYSIS
+------------------------------
+ N_ref cycle               : 36.000000
+ Population real (trace)   : 23.785000
+ CT absolute               : -12.215000
+ CT relative (%)           : -33.930556
+
+AROMATIC HOMOGENEITY INDEX
+------------------------------
+ Number of unique pairs    : 15
+ S_cycle_hom               : 0.439137
+
+Q ANALYSIS
+------------------------------
+ Q Frobenius offdiag         : 0.289636
+ Q RMS offdiag              : 0.052880
+
+CHARGE TRANSFER ANALYSIS
+------------------------------
+ N_ref cycle                : 36.000000
+ Population real (trace)    : 23.785000
+ CT absolute                : -12.215000
+ CT relative (%)            : -33.930556
+
+HOMOGENEITY ANALYSIS BY ORBIT
+------------------------------
+ Orbit       n pairs          S_orb          sigma            H_k
+ ----------------------------------------------------------------------
+ ortho             6       0.960875       0.013349       0.986298
+ meta              6       0.086576       0.003282       0.963474
+ para              3       0.135893       0.002497       0.981960
+
+DETAIL OF x_ij = LDM_ij * r_ij BY ORBIT
+------------------------------
+ Orbit      Pair                     x_ij
+ -------------------------------------------------
+ ortho      (5, 6)               0.942574
+ ortho      (5, 10)              0.942574
+ ortho      (6, 7)               0.974037
+ ortho      (7, 8)               0.966013
+ ortho      (8, 9)               0.966013
+ ortho      (9, 10)              0.974037
+ meta       (5, 7)               0.082695
+ meta       (5, 9)               0.082695
+ meta       (6, 8)               0.090610
+ meta       (6, 10)              0.085445
+ meta       (7, 9)               0.087400
+ meta       (8, 10)              0.090610
+ para       (5, 8)               0.132363
+ para       (6, 9)               0.137659
+ para       (7, 10)              0.137659
+
+ Corrected orbit-homogeneity index (S_hom) : 0.439137
+
+ORBIT SUMMARY
+------------------------------
+ Orbit       n pairs     Ref. val    Mean real     Contrib.
+ --------------------------------------------------------------
+ ortho             6     0.583333     0.688133     0.258324
+ meta              6     0.083333     0.035800     0.116487
+ para              3     0.166667     0.048667     0.204392
+
+ORBIT HOMOGENEITY SUMMARY
+------------------------------
+ Orbit       n pairs        S_orb        sigma            H
+ ------------------------------------------------------------
+ ortho             6     0.960875     0.013349     0.986298
+ meta              6     0.086576     0.003282     0.963474
+ para              3     0.135893     0.002497     0.981960
+
+DETAILED ORBIT PAIR TABLE
+------------------------------
+ Orbit      Pair                   Real    Reference   Difference
+ ----------------------------------------------------------------
+ ortho      (5, 6)             0.671900     0.583333     0.088567
+ ortho      (5, 10)            0.671900     0.583333     0.088567
+ ortho      (6, 7)             0.699500     0.583333     0.116167
+ ortho      (7, 8)             0.693000     0.583333     0.109667
+ ortho      (8, 9)             0.693000     0.583333     0.109667
+ ortho      (9, 10)            0.699500     0.583333     0.116167
+ meta       (5, 7)             0.034000     0.083333    -0.049333
+ meta       (5, 9)             0.034000     0.083333    -0.049333
+ meta       (6, 8)             0.037500     0.083333    -0.045833
+ meta       (6, 10)            0.035500     0.083333    -0.047833
+ meta       (7, 9)             0.036300     0.083333    -0.047033
+ meta       (8, 10)            0.037500     0.083333    -0.045833
+ para       (5, 8)             0.047000     0.166667    -0.119667
+ para       (6, 9)             0.049500     0.166667    -0.117167
+ para       (7, 10)            0.049500     0.166667    -0.117167
+
+===============================================================
+ Cycle number        : 1
+ Cycle type          : ELEMENTAIRE
+ Cycle size          : 6
+ Cycle indices       : [1, 2, 3, 4, 11, 12]
+ Cycle status        : TRAITE
+ Cycle origin        : AUTO
+ N_pi reference      : 3
+ Number of orbits    : 3
+ Lambda              : 4.500000
+ Symmetric submatrix : True
+ Max asymmetry       : 0.000000e+00
+
+REAL LDM SUBMATRIX
+------------------------------
+ 3.981800 0.693000 0.037500 0.047000 0.037500 0.693000
+ 0.693000 3.948400 0.699500 0.034000 0.049500 0.036300
+ 0.037500 0.699500 4.007900 0.671900 0.035500 0.049500
+ 0.047000 0.034000 0.671900 3.890400 0.671900 0.034000
+ 0.037500 0.049500 0.035500 0.671900 4.008000 0.699500
+ 0.693000 0.036300 0.049500 0.034000 0.699500 3.948400
+
+REFERENCE MATRIX (6x6)
+------------------------------
+ 4.500000 0.583333 0.083333 0.166667 0.083333 0.583333
+ 0.583333 4.500000 0.583333 0.083333 0.166667 0.083333
+ 0.083333 0.583333 4.500000 0.583333 0.083333 0.166667
+ 0.166667 0.083333 0.583333 4.500000 0.583333 0.083333
+ 0.083333 0.166667 0.083333 0.583333 4.500000 0.583333
+ 0.583333 0.083333 0.166667 0.083333 0.583333 4.500000
+
+DIFFERENCE MATRIX : DELTA = REAL - REFERENCE
+------------------------------
+ -0.518200 0.109667 -0.045833 -0.119667 -0.045833 0.109667
+ 0.109667 -0.551600 0.116167 -0.049333 -0.117167 -0.047033
+ -0.045833 0.116167 -0.492100 0.088567 -0.047833 -0.117167
+ -0.119667 -0.049333 0.088567 -0.609600 0.088567 -0.049333
+ -0.045833 -0.117167 -0.047833 0.088567 -0.492000 0.116167
+ 0.109667 -0.047033 -0.117167 -0.049333 0.116167 -0.551600
+
+DISTANCES AND CONTRIBUTIONS
+------------------------------
+ Frobenius distance (full) : 1.406075
+ Diagonal contribution     : 1.316395
+ Off-diagonal contribution : 0.494118
+ RMS matricielle           : 0.234346
+ RMS hors diagonale        : 0.090213
+ Final rank                : 2
+
+Q WEIGHTED ANALYSIS
+------------------------------
+ Q Frobenius offdiag       : 0.289636
+ Q RMS offdiag             : 0.052880
+
+CHARGE TRANSFER ANALYSIS
+------------------------------
+ N_ref cycle               : 36.000000
+ Population real (trace)   : 23.784900
+ CT absolute               : -12.215100
+ CT relative (%)           : -33.930833
+
+AROMATIC HOMOGENEITY INDEX
+------------------------------
+ Number of unique pairs    : 15
+ S_cycle_hom               : 0.439137
+
+Q ANALYSIS
+------------------------------
+ Q Frobenius offdiag         : 0.289636
+ Q RMS offdiag              : 0.052880
+
+CHARGE TRANSFER ANALYSIS
+------------------------------
+ N_ref cycle                : 36.000000
+ Population real (trace)    : 23.784900
+ CT absolute                : -12.215100
+ CT relative (%)            : -33.930833
+
+HOMOGENEITY ANALYSIS BY ORBIT
+------------------------------
+ Orbit       n pairs          S_orb          sigma            H_k
+ ----------------------------------------------------------------------
+ ortho             6       0.960875       0.013349       0.986298
+ meta              6       0.086576       0.003282       0.963474
+ para              3       0.135893       0.002497       0.981960
+
+DETAIL OF x_ij = LDM_ij * r_ij BY ORBIT
+------------------------------
+ Orbit      Pair                     x_ij
+ -------------------------------------------------
+ ortho      (1, 2)               0.966013
+ ortho      (1, 12)              0.966013
+ ortho      (2, 3)               0.974037
+ ortho      (3, 4)               0.942574
+ ortho      (4, 11)              0.942574
+ ortho      (11, 12)             0.974037
+ meta       (1, 3)               0.090610
+ meta       (1, 11)              0.090610
+ meta       (2, 4)               0.082695
+ meta       (2, 12)              0.087400
+ meta       (3, 11)              0.085445
+ meta       (4, 12)              0.082695
+ para       (1, 4)               0.132363
+ para       (2, 11)              0.137659
+ para       (3, 12)              0.137659
+
+ Corrected orbit-homogeneity index (S_hom) : 0.439137
+
+ORBIT SUMMARY
+------------------------------
+ Orbit       n pairs     Ref. val    Mean real     Contrib.
+ --------------------------------------------------------------
+ ortho             6     0.583333     0.688133     0.258324
+ meta              6     0.083333     0.035800     0.116487
+ para              3     0.166667     0.048667     0.204392
+
+ORBIT HOMOGENEITY SUMMARY
+------------------------------
+ Orbit       n pairs        S_orb        sigma            H
+ ------------------------------------------------------------
+ ortho             6     0.960875     0.013349     0.986298
+ meta              6     0.086576     0.003282     0.963474
+ para              3     0.135893     0.002497     0.981960
+
+DETAILED ORBIT PAIR TABLE
+------------------------------
+ Orbit      Pair                   Real    Reference   Difference
+ ----------------------------------------------------------------
+ ortho      (1, 2)             0.693000     0.583333     0.109667
+ ortho      (1, 12)            0.693000     0.583333     0.109667
+ ortho      (2, 3)             0.699500     0.583333     0.116167
+ ortho      (3, 4)             0.671900     0.583333     0.088567
+ ortho      (4, 11)            0.671900     0.583333     0.088567
+ ortho      (11, 12)           0.699500     0.583333     0.116167
+ meta       (1, 3)             0.037500     0.083333    -0.045833
+ meta       (1, 11)            0.037500     0.083333    -0.045833
+ meta       (2, 4)             0.034000     0.083333    -0.049333
+ meta       (2, 12)            0.036300     0.083333    -0.047033
+ meta       (3, 11)            0.035500     0.083333    -0.047833
+ meta       (4, 12)            0.034000     0.083333    -0.049333
+ para       (1, 4)             0.047000     0.166667    -0.119667
+ para       (2, 11)            0.049500     0.166667    -0.117167
+ para       (3, 12)            0.049500     0.166667    -0.117167
+
+===============================================================
+FINAL SUMMARY
+===============================================================
+ Reference type : EG
+ epsilon_O      : 0.583333
+ epsilon_P      : 0.166667
+ epsilon_M      : 0.083333
+ lambda (6 EG)  : 4.500000
+ N_A            : 6.000000
+
+ No.  Type          Taille Indices                Origine     Statut                Frob full   Offdiag.      Diag.    RMS mat    RMS off         CT       CT %     Q Frob      Q RMS      S_hom
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 1    ELEMENTAIRE   6     [1, 2, 3, 4, 11, 12]   AUTO        TRAITE                 1.406075   0.494118   1.316395   0.234346   0.090213 -12.215100 -33.930833   0.289636   0.052880   0.439137
+ 2    ELEMENTAIRE   6     [5, 6, 7, 8, 9, 10]    AUTO        TRAITE                 1.406036   0.494118   1.316353   0.234339   0.090213 -12.215000 -33.930556   0.289636   0.052880   0.439137
+
