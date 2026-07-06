@@ -1,7 +1,7 @@
 ===============================================================
-                    AroX.v0.3.4 REPORT
+                    AroX.v0.3.5 REPORT
 ===============================================================
- Program name        : AroX.v0.3.4
+ Program name        : AroX.v0.3.5
  Input geometry file : Acenaphtylene_6-311+Gdp_rho_dist.dat
  Geometry input type : DIST
  Input LDM file      : Acenaphtylene_6-311+Gdp_rho_ldm.dat
@@ -1792,6 +1792,14 @@ FINAL SUMMARY
  7     ELEMENTAIRE   11    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]       AUTO          55    12.805265     4.4829     0.0000     5.7814     77.540
  TOT   GLOBAL        12    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]   -             66    16.026758     4.8285     0.0000     6.0444     79.884
 
+ --- Global-domain descriptors (heavy-atom subgraph) ---
+ Heavy atoms : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+ Descriptor        Value      H_min      H_max        u %
+ ------------------------------------------------------------
+ H_LDM(G)         4.4146     3.5847     6.2854     30.726
+ H_Q(G)           4.1948     0.0000     6.0444     69.399
+ H_S(G)           4.8285     0.0000     6.0444     79.884
+
 
 ===============================================================
               GENERALIZED HOMA ANALYSIS REPORT
@@ -2142,6 +2150,16 @@ FINAL SUMMARY
  6     PERIPHERAL    10    [1, 2, 3, 4, 5, 6, 7, 8, 12, 11]          AUTO          45    12.324103     4.3651     0.0000     5.4919     79.482
  7     ELEMENTAIRE   11    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]       AUTO          55    12.805265     4.4829     0.0000     5.7814     77.540
  TOT   GLOBAL        12    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]   -             66    16.026758     4.8285     0.0000     6.0444     79.884
+
+ [6] GLOBAL-DOMAIN ENTROPY (heavy-atom subgraph)
+ ------------------------------------------------------------
+ --- Global-domain descriptors (heavy-atom subgraph) ---
+ Heavy atoms : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+ Descriptor        Value      H_min      H_max        u %
+ ------------------------------------------------------------
+ H_LDM(G)         4.4146     3.5847     6.2854     30.726
+ H_Q(G)           4.1948     0.0000     6.0444     69.399
+ H_S(G)           4.8285     0.0000     6.0444     79.884
 
 ====================================================================================================
               END OF GLOBAL RESULTS SUMMARY

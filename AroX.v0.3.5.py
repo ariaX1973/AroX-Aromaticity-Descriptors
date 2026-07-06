@@ -3,14 +3,14 @@
 # ==============================================================
 #  Author      : Aria Noroozi
 #  Affiliation : Laboratoire de Chimie Théorique (LCT), 2026
-#  Version     : 0.3.4
+#  Version     : 0.3.5
 #  License     : MIT (see LICENSE file)
 #  Repository  : https://github.com/ariaX1973/AroX-Aromaticity-Descriptors
 #
 #  How to cite
 #  -----------
 #  Noroozi, A. (2026). AroX — Aromaticity Descriptors (HOMA + LDM),
-#  v0.3.4 [computer software]. Laboratoire de Chimie Théorique (LCT).
+#  v0.3.5 [computer software]. Laboratoire de Chimie Théorique (LCT).
 #  https://github.com/ariaX1973/AroX-Aromaticity-Descriptors
 #
 #  BibTeX
@@ -19,7 +19,7 @@
 #    author      = {Noroozi, Aria},
 #    title       = {{AroX} --- Aromaticity Descriptors (HOMA + LDM)},
 #    year        = {2026},
-#    version     = {0.3.4},
+#    version     = {0.3.5},
 #    institution = {Laboratoire de Chimie Th{\'e}orique (LCT)},
 #    url         = {https://github.com/ariaX1973/AroX-Aromaticity-Descriptors}
 #  }
@@ -3607,6 +3607,56 @@ def entropy_ecrire_summary_H_S(fichier, resultats_entropie, cycles_classes) -> N
                                 nom_D="D_S")
 
 
+def entropy_ecrire_mini_tableau_global(fichier, resultats_entropie) -> None:
+    # Mini-tableau récapitulatif des 3 descripteurs entropiques calculés
+    # sur l'ensemble des atomes lourds du graphe moléculaire.
+    # H_LDM(G), H_Q(G), H_S(G) regroupés au même endroit pour lecture rapide.
+    global_row = None
+    for r in resultats_entropie:
+        if r["scope"] == "global":
+            global_row = r
+            break
+    if global_row is None:
+        return
+
+    h = global_row["H_LDM"]
+    q = global_row["H_Q"]
+    s = global_row["H_S"]
+
+    fichier.write(" --- Global-domain descriptors (heavy-atom subgraph) ---\n")
+    fichier.write(f" Heavy atoms : {global_row['atoms']}\n")
+    fichier.write(
+        f" {'Descriptor':<10} "
+        f"{'Value':>12} "
+        f"{'H_min':>10} "
+        f"{'H_max':>10} "
+        f"{'u %':>10}\n"
+    )
+    fichier.write(" " + "-" * 60 + "\n")
+    fichier.write(
+        f" {'H_LDM(G)':<10} "
+        f"{h['H_LDM']:>12.4f} "
+        f"{h['H_min_chem']:>10.4f} "
+        f"{h['H_max_ref']:>10.4f} "
+        f"{h['mu_LDM_clipped_percent']:>10.3f}\n"
+    )
+    fichier.write(
+        f" {'H_Q(G)':<10} "
+        f"{q['H']:>12.4f} "
+        f"{0.0:>10.4f} "
+        f"{q['H_max']:>10.4f} "
+        f"{q['mu_percent']:>10.3f}\n"
+    )
+    fichier.write(
+        f" {'H_S(G)':<10} "
+        f"{s['H']:>12.4f} "
+        f"{0.0:>10.4f} "
+        f"{s['H_max']:>10.4f} "
+        f"{s['mu_percent']:>10.3f}\n"
+    )
+    fichier.write("\n")
+
+
 # ------------------------------------------------------------
 # POINT D'ENTRÉE UNIQUE : intro + details + 3 summaries
 # ------------------------------------------------------------
@@ -3665,6 +3715,7 @@ def entropy_ecrire_section(fichier, resultats_entropie, cycles_classes=None,
     entropy_ecrire_summary_H_LDM(fichier, resultats_entropie, cycles_classes)
     entropy_ecrire_summary_H_Q(fichier, resultats_entropie, cycles_classes)
     entropy_ecrire_summary_H_S(fichier, resultats_entropie, cycles_classes)
+    entropy_ecrire_mini_tableau_global(fichier, resultats_entropie)
 
 
 # ------------------------------------------------------------
@@ -4347,10 +4398,10 @@ def generer_nom_fichier_integre(nom_fichier_ldm: str) -> str:
 
 
 # ============================================================
-# AroX v0.3.4 — STATIC HOMA+LDM + HOMA MD TRAJECTORY MODE
+# AroX v0.3.5 — STATIC HOMA+LDM + HOMA MD TRAJECTORY MODE
 # ============================================================
 
-PROGRAM_NAME = "AroX.v0.3.4"
+PROGRAM_NAME = "AroX.v0.3.5"
 
 SYMBOL_TO_Z_AROX = {
     "H": 1, "C": 6, "N": 7, "O": 8, "F": 9,
@@ -4504,6 +4555,10 @@ def ecrire_global_summary_final(
         fichier.write(" [5] ENTROPY H_S SUMMARY\n")
         fichier.write(" " + "-" * 60 + "\n")
         entropy_ecrire_summary_H_S(fichier, resultats_entropie, cycles_classes)
+
+        fichier.write(" [6] GLOBAL-DOMAIN ENTROPY (heavy-atom subgraph)\n")
+        fichier.write(" " + "-" * 60 + "\n")
+        entropy_ecrire_mini_tableau_global(fichier, resultats_entropie)
 
     fichier.write("=" * 100 + "\n")
     fichier.write("              END OF GLOBAL RESULTS SUMMARY\n")
@@ -4884,7 +4939,7 @@ def arox_ecrire_fichier_homa_trajectoire(
         f.write(" Cycle tracking      : cycles detected/forced on the first frame, then followed by atom indices\n")
         f.write(" Shared cycles       : AUTO cycles + optional free MANUAL cycles + generated FUSED cycles\n")
         f.write(" Fused cycle rule    : symmetric difference of auto/manual cycle edges\n")
-        f.write(" LDM mode            : disabled for trajectory input in v0.3.4\n")
+        f.write(" LDM mode            : disabled for trajectory input in v0.3.5\n")
         f.write("===============================================================\n\n")
 
         f.write(" Parameters used for HOMA\n")

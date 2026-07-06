@@ -1,7 +1,7 @@
 ===============================================================
-                    AroX.v0.3.4 REPORT
+                    AroX.v0.3.5 REPORT
 ===============================================================
- Program name        : AroX.v0.3.4
+ Program name        : AroX.v0.3.5
  Input geometry file : Benzocyclobutadiene_6-311+Gdp_rho_dist.dat
  Geometry input type : DIST
  Input LDM file      : Benzocyclobutadiene_6-311+Gdp_rho_ldm.dat
@@ -756,6 +756,14 @@ FINAL SUMMARY
  3     PERIPHERAL    8     [1, 2, 3, 4, 5, 6, 7, 8]   AUTO          28    10.103059     3.9522     0.0000     4.8074     82.211
  TOT   GLOBAL        8     [1, 2, 3, 4, 5, 6, 7, 8]   -             28    10.103059     3.9522     0.0000     4.8074     82.211
 
+ --- Global-domain descriptors (heavy-atom subgraph) ---
+ Heavy atoms : [1, 2, 3, 4, 5, 6, 7, 8]
+ Descriptor        Value      H_min      H_max        u %
+ ------------------------------------------------------------
+ H_LDM(G)         3.7799     2.9998     5.1699     35.945
+ H_Q(G)           3.4796     0.0000     4.8074     72.381
+ H_S(G)           3.9522     0.0000     4.8074     82.211
+
 
 ===============================================================
               GENERALIZED HOMA ANALYSIS REPORT
@@ -952,6 +960,16 @@ FINAL SUMMARY
  2     ELEMENTAIRE   6     [1, 2, 3, 4, 7, 8]         AUTO          15     6.625302     3.2145     0.0000     3.9069     82.279
  3     PERIPHERAL    8     [1, 2, 3, 4, 5, 6, 7, 8]   AUTO          28    10.103059     3.9522     0.0000     4.8074     82.211
  TOT   GLOBAL        8     [1, 2, 3, 4, 5, 6, 7, 8]   -             28    10.103059     3.9522     0.0000     4.8074     82.211
+
+ [6] GLOBAL-DOMAIN ENTROPY (heavy-atom subgraph)
+ ------------------------------------------------------------
+ --- Global-domain descriptors (heavy-atom subgraph) ---
+ Heavy atoms : [1, 2, 3, 4, 5, 6, 7, 8]
+ Descriptor        Value      H_min      H_max        u %
+ ------------------------------------------------------------
+ H_LDM(G)         3.7799     2.9998     5.1699     35.945
+ H_Q(G)           3.4796     0.0000     4.8074     72.381
+ H_S(G)           3.9522     0.0000     4.8074     82.211
 
 ====================================================================================================
               END OF GLOBAL RESULTS SUMMARY
