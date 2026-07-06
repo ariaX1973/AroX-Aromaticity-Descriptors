@@ -1,7 +1,7 @@
 ===============================================================
-                    AroX.v0.3.1 REPORT
+                    AroX.v0.3.2 REPORT
 ===============================================================
- Program name        : AroX.v0.3.1
+ Program name        : AroX.v0.3.2
  Input geometry file : Biphenyl_6-311+Gdp_rho_dist.dat
  Geometry input type : DIST
  Input LDM file      : Biphenyl_6-311+Gdp_rho_ldm.dat
@@ -450,30 +450,170 @@ FINAL SUMMARY
 
 
 
+===============================================================
+              ENTROPY DESCRIPTORS REPORT (H_LDM / H_Q / H_S)
+===============================================================
+ Formulas    : H = - sum p_k log2 p_k   [bits]
+ H_LDM       : full entropy on lambda_ii (diagonal) + delta_ij (off-diag.)
+              H_LDM = H_part + w_loc * H_loc + w_deloc * H_deloc
+              normalized u_LDM in [0,100] % between H_min_chem and H_max_ref
+ H_Q         : delocalization entropy, weight q_ij = delta_ij / R_ij
+ H_S         : delocalization entropy, weight s_ij = delta_ij * R_ij
+ Convention  : same as LDM  ->  all pairs i<j inside the domain
+               Local domain  : atoms of the detected cycle
+               Global domain : heavy atoms (Z > 1) of the molecule
+===============================================================
 
-====================================================================================================
-                    ENTROPY_DESCRIPTORS (H_LDM, H_Q, H_S)
-====================================================================================================
-Toutes les entropies sont en bits (log2). mu en %.
-Convention (identique à LDM) : toutes les paires atomiques i<j du domaine.
-Domaine cycle  : atomes du cycle + toutes leurs paires i<j.
-Domaine global : atomes lourds (Z > 1) + toutes leurs paires i<j.
+===============================================================
+              DETAILED ENTROPY BY CYCLE
+===============================================================
 
---- Tableau H_LDM (entropie complète : λ_ii + δ_ij) ---
-scope   cycle  atoms                    pairs     Nloc  Ndeloc          L          D   w_loc   w_del   H_part    H_loc    H_del    H_LDM  Hmin_ch  Hmax_rf   mu_raw%  mu_clip%
-cycle   1      [1, 2, 3, 4, 11, 12]     all          6      15    23.7849     4.4896  0.8412  0.1588   0.6314   2.5849   3.0339   3.2876   2.5849   4.3923    38.878    38.878
-cycle   2      [5, 6, 7, 8, 9, 10]      all          6      15    23.7850     4.4896  0.8412  0.1588   0.6314   2.5849   3.0339   3.2876   2.5849   4.3923    38.878    38.878
-global  -      [1, 2, 3, 4, 5, 6, ...]  all         12      66    47.5699     9.7047  0.8306  0.1694   0.6564   3.5849   4.2646   4.3565   3.5848   6.2854    28.574    28.574
+ ------------------------------------------------------------
+ Cycle number        : 1
+ Cycle type          : ELEMENTAIRE
+ Cycle origin        : AUTO
+ Cycle size          : 6
+ Atom indices        : [1, 2, 3, 4, 11, 12]
+ Domain              : all pairs i<j
+ N_loc  (diagonals)  : 6
+ N_deloc (off-diag.) : 15
 
---- Tableau H_Q et H_S (entropies de délocalisation pondérées) ---
-scope   cycle  atoms                    pairs    descr  Ndeloc        D_w        H    H_max     mu % weighting     
-cycle   1      [1, 2, 3, 4, 11, 12]     all      H_Q        15     3.0980   2.8783   3.9069   73.671 delta_ij/R_ij 
-cycle   1      [1, 2, 3, 4, 11, 12]     all      H_S        15     6.6924   3.2413   3.9069   82.964 delta_ij*R_ij 
-cycle   2      [5, 6, 7, 8, 9, 10]      all      H_Q        15     3.0980   2.8783   3.9069   73.671 delta_ij/R_ij 
-cycle   2      [5, 6, 7, 8, 9, 10]      all      H_S        15     6.6924   3.2413   3.9069   82.964 delta_ij*R_ij 
-global  -      [1, 2, 3, 4, 5, 6, ...]  all      H_Q        66     6.6150   4.0515   6.0444   67.028 delta_ij/R_ij 
-global  -      [1, 2, 3, 4, 5, 6, ...]  all      H_S        66    14.8164   4.5805   6.0444   75.781 delta_ij*R_ij 
-====================================================================================================
+ H_LDM decomposition (complete entropy)
+ ------------------------------
+ L (sum lambda_ii)         :      23.784900
+ D (sum delta_ij)          :       4.489600
+ T = L + D                 :      28.274500
+ w_loc = L / T             :       0.841214
+ w_deloc = D / T           :       0.158786
+ H_part                    :       0.631398 bits
+ H_loc                     :       2.584885 bits
+ H_deloc                   :       3.033879 bits
+ H_LDM                     :       3.287577 bits
+ H_min_chem (localized)    :       2.584893 bits
+ H_max_ref                 :       4.392317 bits   [log2(N_loc+N_deloc)]
+ u_LDM raw     %           :         38.878
+ u_LDM clipped %           :         38.878
+
+ H_Q analysis (weight q_ij = delta_ij / R_ij)
+ ------------------------------
+ D_Q (sum q_ij)            :       3.097996
+ H_Q                       :       2.878251 bits
+ H_max_Q                   :       3.906891 bits   [log2(N_deloc)]
+ u_Q %                     :         73.671
+
+ H_S analysis (weight s_ij = delta_ij * R_ij)
+ ------------------------------
+ D_S (sum s_ij)            :       6.692383
+ H_S                       :       3.241301 bits
+ H_max_S                   :       3.906891 bits   [log2(N_deloc)]
+ u_S %                     :         82.964
+ ------------------------------------------------------------
+
+ ------------------------------------------------------------
+ Cycle number        : 2
+ Cycle type          : ELEMENTAIRE
+ Cycle origin        : AUTO
+ Cycle size          : 6
+ Atom indices        : [5, 6, 7, 8, 9, 10]
+ Domain              : all pairs i<j
+ N_loc  (diagonals)  : 6
+ N_deloc (off-diag.) : 15
+
+ H_LDM decomposition (complete entropy)
+ ------------------------------
+ L (sum lambda_ii)         :      23.785000
+ D (sum delta_ij)          :       4.489600
+ T = L + D                 :      28.274600
+ w_loc = L / T             :       0.841214
+ w_deloc = D / T           :       0.158786
+ H_part                    :       0.631396 bits
+ H_loc                     :       2.584885 bits
+ H_deloc                   :       3.033879 bits
+ H_LDM                     :       3.287575 bits
+ H_min_chem (localized)    :       2.584893 bits
+ H_max_ref                 :       4.392317 bits   [log2(N_loc+N_deloc)]
+ u_LDM raw     %           :         38.878
+ u_LDM clipped %           :         38.878
+
+ H_Q analysis (weight q_ij = delta_ij / R_ij)
+ ------------------------------
+ D_Q (sum q_ij)            :       3.097996
+ H_Q                       :       2.878251 bits
+ H_max_Q                   :       3.906891 bits   [log2(N_deloc)]
+ u_Q %                     :         73.671
+
+ H_S analysis (weight s_ij = delta_ij * R_ij)
+ ------------------------------
+ D_S (sum s_ij)            :       6.692383
+ H_S                       :       3.241301 bits
+ H_max_S                   :       3.906891 bits   [log2(N_deloc)]
+ u_S %                     :         82.964
+ ------------------------------------------------------------
+
+ ------------------------------------------------------------
+ GLOBAL scope        : heavy-atom subgraph
+ Atoms (heavy)       : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+ Domain              : all pairs i<j
+ N_loc  (diagonals)  : 12
+ N_deloc (off-diag.) : 66
+
+ H_LDM decomposition (complete entropy)
+ ------------------------------
+ L (sum lambda_ii)         :      47.569900
+ D (sum delta_ij)          :       9.704700
+ T = L + D                 :      57.274600
+ w_loc = L / T             :       0.830558
+ w_deloc = D / T           :       0.169442
+ H_part                    :       0.656426 bits
+ H_loc                     :       3.584885 bits
+ H_deloc                   :       4.264620 bits
+ H_LDM                     :       4.356486 bits
+ H_min_chem (localized)    :       3.584809 bits
+ H_max_ref                 :       6.285402 bits   [log2(N_loc+N_deloc)]
+ u_LDM raw     %           :         28.574
+ u_LDM clipped %           :         28.574
+
+ H_Q analysis (weight q_ij = delta_ij / R_ij)
+ ------------------------------
+ D_Q (sum q_ij)            :       6.615045
+ H_Q                       :       4.051454 bits
+ H_max_Q                   :       6.044394 bits   [log2(N_deloc)]
+ u_Q %                     :         67.028
+
+ H_S analysis (weight s_ij = delta_ij * R_ij)
+ ------------------------------
+ D_S (sum s_ij)            :      14.816364
+ H_S                       :       4.580511 bits
+ H_max_S                   :       6.044394 bits   [log2(N_deloc)]
+ u_S %                     :         75.781
+ ------------------------------------------------------------
+
+===============================================================
+              ENTROPY FINAL SUMMARY
+===============================================================
+ All entropies in bits (log2). u in percent.
+
+ --- H_LDM (complete entropy : lambda_ii + delta_ij) ---
+ No.   Type          Size  Indices                                   Origine     Nloc  Ndel          L          D   w_loc   w_del   H_part    H_loc    H_del    H_LDM   Hmin_ch   Hmax_rf   u_raw %  u_clip %
+ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 1     ELEMENTAIRE   6     [1, 2, 3, 4, 11, 12]                      AUTO           6    15    23.7849     4.4896  0.8412  0.1588   0.6314   2.5849   3.0339   3.2876    2.5849    4.3923    38.878    38.878
+ 2     ELEMENTAIRE   6     [5, 6, 7, 8, 9, 10]                       AUTO           6    15    23.7850     4.4896  0.8412  0.1588   0.6314   2.5849   3.0339   3.2876    2.5849    4.3923    38.878    38.878
+ TOT   GLOBAL        12    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]   -             12    66    47.5699     9.7047  0.8306  0.1694   0.6564   3.5849   4.2646   4.3565    3.5848    6.2854    28.574    28.574
+
+ --- H_Q (delocalization entropy, weight q_ij = delta_ij / R_ij) ---
+ No.   Type          Size  Indices                                   Origine     Ndel          D_w          H      H_max        u %
+ ----------------------------------------------------------------------------------------------------------------------------------
+ 1     ELEMENTAIRE   6     [1, 2, 3, 4, 11, 12]                      AUTO          15     3.097996     2.8783     3.9069     73.671
+ 2     ELEMENTAIRE   6     [5, 6, 7, 8, 9, 10]                       AUTO          15     3.097996     2.8783     3.9069     73.671
+ TOT   GLOBAL        12    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]   -             66     6.615045     4.0515     6.0444     67.028
+
+ --- H_S (delocalization entropy, weight s_ij = delta_ij * R_ij) ---
+ No.   Type          Size  Indices                                   Origine     Ndel          D_w          H      H_max        u %
+ ----------------------------------------------------------------------------------------------------------------------------------
+ 1     ELEMENTAIRE   6     [1, 2, 3, 4, 11, 12]                      AUTO          15     6.692383     3.2413     3.9069     82.964
+ 2     ELEMENTAIRE   6     [5, 6, 7, 8, 9, 10]                       AUTO          15     6.692383     3.2413     3.9069     82.964
+ TOT   GLOBAL        12    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]   -             66    14.816364     4.5805     6.0444     75.781
+
 
 ===============================================================
               GENERALIZED HOMA ANALYSIS REPORT

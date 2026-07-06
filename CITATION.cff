@@ -10,7 +10,7 @@ abstract: >-
   (local delocalization matrix) and Shannon-based entropy descriptors
   H_LDM / H_Q / H_S. An MD-trajectory mode is also included.
 type: software
-version: "0.3.1"
+version: "0.3.2"
 date-released: 2026-07-07
 license: MIT
 repository-code: "https://github.com/ariaX1973/AroX-Aromaticity-Descriptors"
@@ -30,7 +30,7 @@ authors:
 preferred-citation:
   type: software
   title: "AroX — Aromaticity Descriptors (HOMA + LDM)"
-  version: "0.3.1"
+  version: "0.3.2"
   year: 2026
   authors:
     - family-names: Noroozi

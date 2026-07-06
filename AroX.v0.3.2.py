@@ -3,14 +3,14 @@
 # ==============================================================
 #  Author      : Aria Noroozi
 #  Affiliation : Laboratoire de Chimie Théorique (LCT), 2026
-#  Version     : 0.3.1
+#  Version     : 0.3.2
 #  License     : MIT (see LICENSE file)
 #  Repository  : https://github.com/ariaX1973/AroX-Aromaticity-Descriptors
 #
 #  How to cite
 #  -----------
 #  Noroozi, A. (2026). AroX — Aromaticity Descriptors (HOMA + LDM),
-#  v0.3.1 [computer software]. Laboratoire de Chimie Théorique (LCT).
+#  v0.3.2 [computer software]. Laboratoire de Chimie Théorique (LCT).
 #  https://github.com/ariaX1973/AroX-Aromaticity-Descriptors
 #
 #  BibTeX
@@ -19,7 +19,7 @@
 #    author      = {Noroozi, Aria},
 #    title       = {{AroX} --- Aromaticity Descriptors (HOMA + LDM)},
 #    year        = {2026},
-#    version     = {0.3.1},
+#    version     = {0.3.2},
 #    institution = {Laboratoire de Chimie Th{\'e}orique (LCT)},
 #    url         = {https://github.com/ariaX1973/AroX-Aromaticity-Descriptors}
 #  }
@@ -3473,65 +3473,213 @@ def entropy_preparer_resultats(
 
 
 # ------------------------------------------------------------
-# ÉCRITURE DE LA SECTION ENTROPY_DESCRIPTORS DANS LE .arx
+# ÉCRITURE DES DÉTAILS ENTROPIE PAR CYCLE (style LDM/HOMA)
 # ------------------------------------------------------------
 
-def entropy_ecrire_section(fichier, resultats_entropie) -> None:
-    fichier.write("\n")
-    fichier.write("=" * 100 + "\n")
-    fichier.write("                    ENTROPY_DESCRIPTORS (H_LDM, H_Q, H_S)\n")
-    fichier.write("=" * 100 + "\n")
-    fichier.write("Toutes les entropies sont en bits (log2). mu en %.\n")
-    fichier.write("Convention (identique à LDM) : toutes les paires atomiques i<j du domaine.\n")
-    fichier.write("Domaine cycle  : atomes du cycle + toutes leurs paires i<j.\n")
-    fichier.write("Domaine global : atomes lourds (Z > 1) + toutes leurs paires i<j.\n")
+def entropy_type_cycle_str(r, cycles_classes) -> Tuple[str, str, str]:
+    """Renvoie (type_cycle, origine, statut) pour la ligne de résumé."""
+    if r["scope"] == "global":
+        return ("GLOBAL", "-", "-")
+    if not cycles_classes:
+        return ("-", "-", "-")
+    for c in cycles_classes:
+        if c.get("numero_cycle") == r["cycle_id"]:
+            return (c.get("type_cycle", "-"),
+                    c.get("origine_cycle", "-"),
+                    c.get("statut_cycle", "-"))
+    return ("-", "-", "-")
+
+
+def entropy_ecrire_intro(fichier) -> None:
+    fichier.write("===============================================================\n")
+    fichier.write("              ENTROPY DESCRIPTORS REPORT (H_LDM / H_Q / H_S)\n")
+    fichier.write("===============================================================\n")
+    fichier.write(" Formulas    : H = - sum p_k log2 p_k   [bits]\n")
+    fichier.write(" H_LDM       : full entropy on lambda_ii (diagonal) + delta_ij (off-diag.)\n")
+    fichier.write("              H_LDM = H_part + w_loc * H_loc + w_deloc * H_deloc\n")
+    fichier.write("              normalized u_LDM in [0,100] % between H_min_chem and H_max_ref\n")
+    fichier.write(" H_Q         : delocalization entropy, weight q_ij = delta_ij / R_ij\n")
+    fichier.write(" H_S         : delocalization entropy, weight s_ij = delta_ij * R_ij\n")
+    fichier.write(" Convention  : same as LDM  ->  all pairs i<j inside the domain\n")
+    fichier.write("               Local domain  : atoms of the detected cycle\n")
+    fichier.write("               Global domain : heavy atoms (Z > 1) of the molecule\n")
+    fichier.write("===============================================================\n\n")
+
+
+def entropy_ecrire_detail_cycle(fichier, r, type_cycle_txt, origine_txt) -> None:
+    h = r["H_LDM"]
+    q = r["H_Q"]
+    s = r["H_S"]
+
+    fichier.write(" ------------------------------------------------------------\n")
+    if r["scope"] == "cycle":
+        fichier.write(f" Cycle number        : {r['cycle_id']}\n")
+        fichier.write(f" Cycle type          : {type_cycle_txt}\n")
+        fichier.write(f" Cycle origin        : {origine_txt}\n")
+        fichier.write(f" Cycle size          : {h['n_loc']}\n")
+        fichier.write(f" Atom indices        : {r['atoms']}\n")
+    else:
+        fichier.write(f" GLOBAL scope        : heavy-atom subgraph\n")
+        fichier.write(f" Atoms (heavy)       : {r['atoms']}\n")
+    fichier.write(f" Domain              : all pairs i<j\n")
+    fichier.write(f" N_loc  (diagonals)  : {h['n_loc']}\n")
+    fichier.write(f" N_deloc (off-diag.) : {h['n_deloc']}\n")
     fichier.write("\n")
 
-    # --- Tableau H_LDM complet ---
-    fichier.write("--- Tableau H_LDM (entropie complète : λ_ii + δ_ij) ---\n")
-    fichier.write(
-        f"{'scope':<7} {'cycle':<6} {'atoms':<24} {'pairs':<8} "
-        f"{'Nloc':>5} {'Ndeloc':>7} {'L':>10} {'D':>10} "
-        f"{'w_loc':>7} {'w_del':>7} {'H_part':>8} {'H_loc':>8} {'H_del':>8} "
-        f"{'H_LDM':>8} {'Hmin_ch':>8} {'Hmax_rf':>8} "
-        f"{'mu_raw%':>9} {'mu_clip%':>9}\n"
+    fichier.write(" H_LDM decomposition (complete entropy)\n")
+    fichier.write(" ------------------------------\n")
+    fichier.write(f" L (sum lambda_ii)         : {h['L']:>14.6f}\n")
+    fichier.write(f" D (sum delta_ij)          : {h['D']:>14.6f}\n")
+    fichier.write(f" T = L + D                 : {h['L'] + h['D']:>14.6f}\n")
+    fichier.write(f" w_loc = L / T             : {h['w_loc']:>14.6f}\n")
+    fichier.write(f" w_deloc = D / T           : {h['w_deloc']:>14.6f}\n")
+    fichier.write(f" H_part                    : {h['H_part']:>14.6f} bits\n")
+    fichier.write(f" H_loc                     : {h['H_loc']:>14.6f} bits\n")
+    fichier.write(f" H_deloc                   : {h['H_deloc']:>14.6f} bits\n")
+    fichier.write(f" H_LDM                     : {h['H_LDM']:>14.6f} bits\n")
+    fichier.write(f" H_min_chem (localized)    : {h['H_min_chem']:>14.6f} bits\n")
+    fichier.write(f" H_max_ref                 : {h['H_max_ref']:>14.6f} bits   [log2(N_loc+N_deloc)]\n")
+    fichier.write(f" u_LDM raw     %           : {h['mu_LDM_raw_percent']:>14.3f}\n")
+    fichier.write(f" u_LDM clipped %           : {h['mu_LDM_clipped_percent']:>14.3f}\n")
+    fichier.write("\n")
+
+    fichier.write(" H_Q analysis (weight q_ij = delta_ij / R_ij)\n")
+    fichier.write(" ------------------------------\n")
+    fichier.write(f" D_Q (sum q_ij)            : {q['D_weighted']:>14.6f}\n")
+    fichier.write(f" H_Q                       : {q['H']:>14.6f} bits\n")
+    fichier.write(f" H_max_Q                   : {q['H_max']:>14.6f} bits   [log2(N_deloc)]\n")
+    fichier.write(f" u_Q %                     : {q['mu_percent']:>14.3f}\n")
+    fichier.write("\n")
+
+    fichier.write(" H_S analysis (weight s_ij = delta_ij * R_ij)\n")
+    fichier.write(" ------------------------------\n")
+    fichier.write(f" D_S (sum s_ij)            : {s['D_weighted']:>14.6f}\n")
+    fichier.write(f" H_S                       : {s['H']:>14.6f} bits\n")
+    fichier.write(f" H_max_S                   : {s['H_max']:>14.6f} bits   [log2(N_deloc)]\n")
+    fichier.write(f" u_S %                     : {s['mu_percent']:>14.3f}\n")
+    fichier.write(" ------------------------------------------------------------\n\n")
+
+
+# ------------------------------------------------------------
+# SUMMARY FINAL — TROIS TABLEAUX SÉPARÉS (H_LDM, H_Q, H_S)
+#   Même style que le summary LDM et HOMA.
+# ------------------------------------------------------------
+
+def _entropy_largeur_indices(resultats_entropie, mini: int = 22, marge: int = 2) -> int:
+    if not resultats_entropie:
+        return mini
+    largeurs = [len(str(r["atoms"])) for r in resultats_entropie]
+    return max(mini, max(largeurs) + marge)
+
+
+def entropy_ecrire_summary_H_LDM(fichier, resultats_entropie, cycles_classes) -> None:
+    largeur = _entropy_largeur_indices(resultats_entropie)
+    titre = (
+        f" {'No.':<5} {'Type':<13} {'Size':<5} {'Indices':<{largeur}} "
+        f"{'Origine':<10} "
+        f"{'Nloc':>5} {'Ndel':>5} "
+        f"{'L':>10} {'D':>10} "
+        f"{'w_loc':>7} {'w_del':>7} "
+        f"{'H_part':>8} {'H_loc':>8} {'H_del':>8} "
+        f"{'H_LDM':>8} {'Hmin_ch':>9} {'Hmax_rf':>9} "
+        f"{'u_raw %':>9} {'u_clip %':>9}"
     )
+    fichier.write(" --- H_LDM (complete entropy : lambda_ii + delta_ij) ---\n")
+    fichier.write(titre + "\n")
+    fichier.write(" " + "-" * (len(titre) - 1) + "\n")
     for r in resultats_entropie:
         h = r["H_LDM"]
-        atomes_txt = str(r["atoms"])
-        if len(atomes_txt) > 22:
-            atomes_txt = atomes_txt[:19] + "...]"
+        type_cyc, origine, _ = entropy_type_cycle_str(r, cycles_classes)
+        no_str = str(r["cycle_id"]) if r["scope"] == "cycle" else "TOT"
         fichier.write(
-            f"{r['scope']:<7} {str(r['cycle_id']):<6} {atomes_txt:<24} {r['pairs_mode']:<8} "
-            f"{h['n_loc']:>5d} {h['n_deloc']:>7d} {h['L']:>10.4f} {h['D']:>10.4f} "
-            f"{h['w_loc']:>7.4f} {h['w_deloc']:>7.4f} {h['H_part']:>8.4f} {h['H_loc']:>8.4f} {h['H_deloc']:>8.4f} "
-            f"{h['H_LDM']:>8.4f} {h['H_min_chem']:>8.4f} {h['H_max_ref']:>8.4f} "
+            f" {no_str:<5s} {type_cyc:<13s} {h['n_loc']:<5d} "
+            f"{str(r['atoms']):<{largeur}s} "
+            f"{origine:<10s} "
+            f"{h['n_loc']:>5d} {h['n_deloc']:>5d} "
+            f"{h['L']:>10.4f} {h['D']:>10.4f} "
+            f"{h['w_loc']:>7.4f} {h['w_deloc']:>7.4f} "
+            f"{h['H_part']:>8.4f} {h['H_loc']:>8.4f} {h['H_deloc']:>8.4f} "
+            f"{h['H_LDM']:>8.4f} {h['H_min_chem']:>9.4f} {h['H_max_ref']:>9.4f} "
             f"{h['mu_LDM_raw_percent']:>9.3f} {h['mu_LDM_clipped_percent']:>9.3f}\n"
         )
-
-    # --- Tableau H_Q / H_S ---
     fichier.write("\n")
-    fichier.write("--- Tableau H_Q et H_S (entropies de délocalisation pondérées) ---\n")
-    fichier.write(
-        f"{'scope':<7} {'cycle':<6} {'atoms':<24} {'pairs':<8} "
-        f"{'descr':<5} {'Ndeloc':>7} {'D_w':>10} {'H':>8} {'H_max':>8} {'mu %':>8} {'weighting':<14}\n"
+
+
+def _entropy_ecrire_summary_HQS(fichier, resultats_entropie, cycles_classes, cle: str, titre_court: str, ponderation_txt: str) -> None:
+    largeur = _entropy_largeur_indices(resultats_entropie)
+    titre = (
+        f" {'No.':<5} {'Type':<13} {'Size':<5} {'Indices':<{largeur}} "
+        f"{'Origine':<10} "
+        f"{'Ndel':>5} "
+        f"{'D_w':>12} "
+        f"{'H':>10} "
+        f"{'H_max':>10} "
+        f"{'u %':>10}"
     )
+    fichier.write(f" --- {titre_court} (delocalization entropy, weight {ponderation_txt}) ---\n")
+    fichier.write(titre + "\n")
+    fichier.write(" " + "-" * (len(titre) - 1) + "\n")
     for r in resultats_entropie:
-        atomes_txt = str(r["atoms"])
-        if len(atomes_txt) > 22:
-            atomes_txt = atomes_txt[:19] + "...]"
-        for cle in ("H_Q", "H_S"):
-            hh = r[cle]
-            fichier.write(
-                f"{r['scope']:<7} {str(r['cycle_id']):<6} {atomes_txt:<24} {r['pairs_mode']:<8} "
-                f"{hh['descriptor']:<5} {hh['n_deloc']:>7d} {hh['D_weighted']:>10.4f} "
-                f"{hh['H']:>8.4f} {hh['H_max']:>8.4f} {hh['mu_percent']:>8.3f} {hh['weighting']:<14}\n"
-            )
-    fichier.write("=" * 100 + "\n")
+        hh = r[cle]
+        type_cyc, origine, _ = entropy_type_cycle_str(r, cycles_classes)
+        no_str = str(r["cycle_id"]) if r["scope"] == "cycle" else "TOT"
+        n_loc = r["H_LDM"]["n_loc"]
+        fichier.write(
+            f" {no_str:<5s} {type_cyc:<13s} {n_loc:<5d} "
+            f"{str(r['atoms']):<{largeur}s} "
+            f"{origine:<10s} "
+            f"{hh['n_deloc']:>5d} "
+            f"{hh['D_weighted']:>12.6f} "
+            f"{hh['H']:>10.4f} "
+            f"{hh['H_max']:>10.4f} "
+            f"{hh['mu_percent']:>10.3f}\n"
+        )
+    fichier.write("\n")
+
+
+def entropy_ecrire_summary_H_Q(fichier, resultats_entropie, cycles_classes) -> None:
+    _entropy_ecrire_summary_HQS(fichier, resultats_entropie, cycles_classes,
+                                cle="H_Q", titre_court="H_Q",
+                                ponderation_txt="q_ij = delta_ij / R_ij")
+
+
+def entropy_ecrire_summary_H_S(fichier, resultats_entropie, cycles_classes) -> None:
+    _entropy_ecrire_summary_HQS(fichier, resultats_entropie, cycles_classes,
+                                cle="H_S", titre_court="H_S",
+                                ponderation_txt="s_ij = delta_ij * R_ij")
 
 
 # ------------------------------------------------------------
-# AFFICHAGE TERMINAL COMPACT (troisième tableau du RÉSUMÉ)
+# POINT D'ENTRÉE UNIQUE : intro + details + 3 summaries
+# ------------------------------------------------------------
+
+def entropy_ecrire_section(fichier, resultats_entropie, cycles_classes=None) -> None:
+    if not resultats_entropie:
+        return
+
+    entropy_ecrire_intro(fichier)
+
+    # --- Détail par cycle (style HOMA/LDM par cycle) ---
+    fichier.write("===============================================================\n")
+    fichier.write("              DETAILED ENTROPY BY CYCLE\n")
+    fichier.write("===============================================================\n\n")
+    for r in resultats_entropie:
+        type_cyc, origine, _ = entropy_type_cycle_str(r, cycles_classes)
+        entropy_ecrire_detail_cycle(fichier, r, type_cyc, origine)
+
+    # --- Summary final : 3 tableaux séparés (résultats seulement) ---
+    fichier.write("===============================================================\n")
+    fichier.write("              ENTROPY FINAL SUMMARY\n")
+    fichier.write("===============================================================\n")
+    fichier.write(" All entropies in bits (log2). u in percent.\n\n")
+
+    entropy_ecrire_summary_H_LDM(fichier, resultats_entropie, cycles_classes)
+    entropy_ecrire_summary_H_Q(fichier, resultats_entropie, cycles_classes)
+    entropy_ecrire_summary_H_S(fichier, resultats_entropie, cycles_classes)
+
+
+# ------------------------------------------------------------
+# AFFICHAGE TERMINAL COMPACT (3ème tableau du résumé terminal)
 # ------------------------------------------------------------
 
 def entropy_afficher_terminal(resultats_entropie) -> None:
@@ -3542,8 +3690,8 @@ def entropy_afficher_terminal(resultats_entropie) -> None:
     print("=" * 130)
     print(
         f"{'Scope':<7} {'Cycle':<6} {'Atoms':<20} "
-        f"{'H_LDM':>8} {'mu_LDM%':>9} {'H_loc':>8} {'H_del':>8} "
-        f"{'H_Q':>8} {'mu_Q%':>8} {'H_S':>8} {'mu_S%':>8}"
+        f"{'H_LDM':>8} {'u_LDM%':>9} {'H_loc':>8} {'H_del':>8} "
+        f"{'H_Q':>8} {'u_Q %':>8} {'H_S':>8} {'u_S %':>8}"
     )
     for r in resultats_entropie:
         atomes_txt = str(r["atoms"])
@@ -3552,8 +3700,9 @@ def entropy_afficher_terminal(resultats_entropie) -> None:
         h = r["H_LDM"]
         q = r["H_Q"]
         s = r["H_S"]
+        no_str = str(r["cycle_id"]) if r["scope"] == "cycle" else "-"
         print(
-            f"{r['scope']:<7} {str(r['cycle_id']):<6} {atomes_txt:<20} "
+            f"{r['scope']:<7} {no_str:<6} {atomes_txt:<20} "
             f"{h['H_LDM']:>8.4f} {h['mu_LDM_clipped_percent']:>9.3f} "
             f"{h['H_loc']:>8.4f} {h['H_deloc']:>8.4f} "
             f"{q['H']:>8.4f} {q['mu_percent']:>8.3f} "
@@ -4209,10 +4358,10 @@ def generer_nom_fichier_integre(nom_fichier_ldm: str) -> str:
 
 
 # ============================================================
-# AroX v0.3.1 — STATIC HOMA+LDM + HOMA MD TRAJECTORY MODE
+# AroX v0.3.2 — STATIC HOMA+LDM + HOMA MD TRAJECTORY MODE
 # ============================================================
 
-PROGRAM_NAME = "AroX.v0.3.1"
+PROGRAM_NAME = "AroX.v0.3.2"
 
 SYMBOL_TO_Z_AROX = {
     "H": 1, "C": 6, "N": 7, "O": 8, "F": 9,
@@ -4378,7 +4527,7 @@ def enregistrer_fichier_integre(
 
             # Section entropique (H_LDM / H_Q / H_S) — uniquement si LDM fournie.
             if resultats_entropie:
-                entropy_ecrire_section(fichier, resultats_entropie)
+                entropy_ecrire_section(fichier, resultats_entropie, cycles_classes)
                 fichier.write("\n")
         else:
             fichier.write("===============================================================\n")
@@ -4666,7 +4815,7 @@ def arox_ecrire_fichier_homa_trajectoire(
         f.write(" Cycle tracking      : cycles detected/forced on the first frame, then followed by atom indices\n")
         f.write(" Shared cycles       : AUTO cycles + optional free MANUAL cycles + generated FUSED cycles\n")
         f.write(" Fused cycle rule    : symmetric difference of auto/manual cycle edges\n")
-        f.write(" LDM mode            : disabled for trajectory input in v0.3.1\n")
+        f.write(" LDM mode            : disabled for trajectory input in v0.3.2\n")
         f.write("===============================================================\n\n")
 
         f.write(" Parameters used for HOMA\n")
