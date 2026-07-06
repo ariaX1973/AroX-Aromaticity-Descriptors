@@ -3,14 +3,14 @@
 # ==============================================================
 #  Author      : Aria Noroozi
 #  Affiliation : Laboratoire de Chimie Théorique (LCT), 2026
-#  Version     : 0.3.3
+#  Version     : 0.3.4
 #  License     : MIT (see LICENSE file)
 #  Repository  : https://github.com/ariaX1973/AroX-Aromaticity-Descriptors
 #
 #  How to cite
 #  -----------
 #  Noroozi, A. (2026). AroX — Aromaticity Descriptors (HOMA + LDM),
-#  v0.3.3 [computer software]. Laboratoire de Chimie Théorique (LCT).
+#  v0.3.4 [computer software]. Laboratoire de Chimie Théorique (LCT).
 #  https://github.com/ariaX1973/AroX-Aromaticity-Descriptors
 #
 #  BibTeX
@@ -19,7 +19,7 @@
 #    author      = {Noroozi, Aria},
 #    title       = {{AroX} --- Aromaticity Descriptors (HOMA + LDM)},
 #    year        = {2026},
-#    version     = {0.3.3},
+#    version     = {0.3.4},
 #    institution = {Laboratoire de Chimie Th{\'e}orique (LCT)},
 #    url         = {https://github.com/ariaX1973/AroX-Aromaticity-Descriptors}
 #  }
@@ -31,7 +31,7 @@
 # ============================================================
 #  BLOC 1   — Constantes globales, tables de rayons, étiquettes
 #  BLOC 2   — Lecture et validation des fichiers d'entrée (.dat)
-#  BLOC 3   — Paramètres de référence (EG, EG-hetero, CUSTOM)
+#  BLOC 3   — Paramètres de référence EG (constants, non interactifs)
 #  BLOC 4   — Connectivité moléculaire et adaptation des rayons
 #  BLOC 5   — Détection, canonisation, filtrage, classification des cycles
 #  BLOC 6   — Construction de la matrice LDM de référence
@@ -111,8 +111,6 @@ RAYONS_COVALENTS_BASE = {
 # ==============================
 
 REFERENCE_NAME_EG = "EG"
-REFERENCE_NAME_EG_HETERO = "EG-hetero"
-REFERENCE_NAME_CUSTOM = "CUSTOM"
 
 STATUT_CYCLE_TRAITE = "TRAITE"
 STATUT_CYCLE_NON_TRAITE = "NON TRAITE EN V2"
@@ -253,81 +251,40 @@ def convertir_matrice_bohr_en_angstrom(matrice: np.ndarray) -> np.ndarray:
 
 
 # ============================================================
-# BLOC 3 — PARAMÈTRES DE RÉFÉRENCE (EG, EG-hetero, CUSTOM)
+# BLOC 3 — PARAMÈTRES DE RÉFÉRENCE (EG uniquement)
 # ============================================================
-# Trois valeurs epsilon (ortho, para, meta) définissent la matrice
-# LDM idéale du benzène. Trois modes possibles : EG (défauts 7/12,
-# 1/6, 1/12), EG-hetero (généralisation aux hétéroatomes) ou
-# CUSTOM (valeurs saisies par l'utilisateur).
+# La matrice de référence est celle d'Estrada-Goodman (EG).
+# Les valeurs epsilon (ortho, para, meta) sont recalculées par
+# `calculer_valeurs_reference_par_orbite` (BLOC 6) à partir de la
+# topologie du cycle ; les constantes 7/12, 1/6, 1/12 correspondent
+# au benzène et sont conservées pour affichage.
 # ============================================================
 
 # ==============================
-# FONCTION DE DEMANDE DES PARAMÈTRES UTILISATEUR
+# CONSTRUCTION DU DICTIONNAIRE DE PARAMÈTRES DE RÉFÉRENCE
 # ==============================
+# Retourne directement les paramètres EG. Aucun mode CUSTOM :
+# les valeurs epsilon sont toujours dérivées de la topologie
+# du cycle par le BLOC 6, indépendamment des valeurs affichées.
 
 def demander_parametres_reference() -> Dict[str, float]:
-    print()
-    print(" Paramètres de référence (Entrée = valeur EG par défaut)")
-    print(" Note : N_A est lu automatiquement depuis le fichier .dat,")
-    print("        chaque atome du cycle utilise son propre Z comme N_A.")
-    print()
-
-    entree_epsilon_o = input(
-        f"Entrez epsilon_O (Entrée pour valeur par défaut = {EPSILON_O_DEFAUT:.6f}) : "
-    ).strip()
-    epsilon_o = EPSILON_O_DEFAUT if entree_epsilon_o == "" else float(entree_epsilon_o)
-
-    entree_epsilon_p = input(
-        f"Entrez epsilon_P (Entrée pour valeur par défaut = {EPSILON_P_DEFAUT:.6f}) : "
-    ).strip()
-    epsilon_p = EPSILON_P_DEFAUT if entree_epsilon_p == "" else float(entree_epsilon_p)
-
-    entree_epsilon_m = input(
-        f"Entrez epsilon_M (Entrée pour valeur par défaut = {EPSILON_M_DEFAUT:.6f}) : "
-    ).strip()
-    epsilon_m = EPSILON_M_DEFAUT if entree_epsilon_m == "" else float(entree_epsilon_m)
-
-    # N_A indicatif (carbone) pour l'affichage et la détection EG/CUSTOM.
-    # La vraie valeur N_A par site sera Z_k de chaque atome du cycle.
+    # Nom conservé pour compat historique ; ne demande plus rien.
+    epsilon_o = EPSILON_O_DEFAUT
+    epsilon_p = EPSILON_P_DEFAUT
+    epsilon_m = EPSILON_M_DEFAUT
     n_a = N_A_DEFAUT
-
     valeur_lambda = calculer_lambda(epsilon_o, epsilon_p, epsilon_m, n_a)
-    nom_reference = identifier_type_reference(epsilon_o, epsilon_p, epsilon_m, n_a)
-    verifier_parametres_inhabituels(epsilon_o, epsilon_p, epsilon_m, n_a, valeur_lambda)
-
     return construire_dictionnaire_parametres(
-        epsilon_o,
-        epsilon_p,
-        epsilon_m,
-        n_a,
-        valeur_lambda,
-        nom_reference
+        epsilon_o, epsilon_p, epsilon_m, n_a, valeur_lambda, REFERENCE_NAME_EG
     )
-
-
-# ==============================
-# FONCTION D’IDENTIFICATION DU TYPE DE RÉFÉRENCE
-# ==============================
-
-def identifier_type_reference(
-    epsilon_o: float,
-    epsilon_p: float,
-    epsilon_m: float,
-    n_a: float
-) -> str:
-    if (
-        abs(epsilon_o - EPSILON_O_DEFAUT) <= 1e-15 and
-        abs(epsilon_p - EPSILON_P_DEFAUT) <= 1e-15 and
-        abs(epsilon_m - EPSILON_M_DEFAUT) <= 1e-15 and
-        abs(n_a - N_A_DEFAUT) <= 1e-15
-    ):
-        return REFERENCE_NAME_EG
-    return REFERENCE_NAME_CUSTOM
 
 
 # ==============================
 # FONCTION DE CALCUL DE LAMBDA
 # ==============================
+# Formule benzène : λ = N_A − (2 ε_O + 2 ε_M + ε_P).
+# Utilisée uniquement pour l'affichage ; le vrai λ par cycle est
+# recalculé site par site dans construire_matrice_reference_cycle.
 
 def calculer_lambda(
     epsilon_o: float,
@@ -336,30 +293,6 @@ def calculer_lambda(
     n_a: float
 ) -> float:
     return n_a - (2.0 * epsilon_o + 2.0 * epsilon_m + epsilon_p)
-
-
-# ==============================
-# FONCTION DE VÉRIFICATION DES PARAMÈTRES INHABITUELS
-# ==============================
-
-def verifier_parametres_inhabituels(
-    epsilon_o: float,
-    epsilon_p: float,
-    epsilon_m: float,
-    n_a: float,
-    valeur_lambda: float
-) -> None:
-    avertissements = []
-    if epsilon_o < 0 or epsilon_p < 0 or epsilon_m < 0:
-        avertissements.append("Avertissement : au moins un epsilon est négatif.")
-    if n_a <= 0:
-        avertissements.append("Avertissement : N_A est inférieur ou égal à zéro.")
-    if valeur_lambda < 0:
-        avertissements.append("Avertissement : lambda est négatif.")
-    if epsilon_o < epsilon_p:
-        avertissements.append("Avertissement : epsilon_O est plus petit que epsilon_P.")
-    for message in avertissements:
-        print(message)
 
 
 # ==============================
@@ -3268,7 +3201,10 @@ def entropy_extraire_lambda(matrice_ldm, atomes) -> List[float]:
 
 
 def entropy_extraire_delta(matrice_ldm, paires) -> List[float]:
-    # Termes hors diagonale (base 1 -> base 0). Valeur absolue clippée en zéro pour rester >= 0.
+    # Termes hors diagonale (base 1 -> base 0). Les valeurs très proches
+    # de zéro (|v| < ENTROPY_EPSILON) sont fixées à 0. Les valeurs
+    # significativement négatives sont laissées telles quelles ; leur
+    # détection globale se fait via entropy_detecter_deltas_negatifs.
     valeurs = []
     for (i, j) in paires:
         v = float(matrice_ldm[i - 1, j - 1])
@@ -3276,6 +3212,22 @@ def entropy_extraire_delta(matrice_ldm, paires) -> List[float]:
             v = 0.0
         valeurs.append(v)
     return valeurs
+
+
+def entropy_detecter_deltas_negatifs(matrice_ldm, atomes) -> List[Tuple[int, int, float]]:
+    # Renvoie la liste des paires (i, j, delta_ij) avec delta_ij < -ENTROPY_EPSILON,
+    # scannées uniquement pour les paires internes au domaine (i, j in atomes, i < j).
+    # Utilisé pour émettre un avertissement dans le .arx : l'entropie de Shannon
+    # suppose des contributions positives, un delta_ij < 0 rend les probabilités
+    # mal définies (elles ne somment plus à 1 après filtrage des termes négatifs).
+    paires_neg = []
+    ensemble = sorted(atomes)
+    for a_idx, i in enumerate(ensemble):
+        for j in ensemble[a_idx + 1:]:
+            v = float(matrice_ldm[i - 1, j - 1])
+            if v < -ENTROPY_EPSILON:
+                paires_neg.append((i, j, v))
+    return paires_neg
 
 
 def entropy_extraire_distances(matrice_distances, paires) -> List[float]:
@@ -3659,11 +3611,42 @@ def entropy_ecrire_summary_H_S(fichier, resultats_entropie, cycles_classes) -> N
 # POINT D'ENTRÉE UNIQUE : intro + details + 3 summaries
 # ------------------------------------------------------------
 
-def entropy_ecrire_section(fichier, resultats_entropie, cycles_classes=None) -> None:
+def entropy_ecrire_avertissement_deltas_negatifs(fichier, paires_neg) -> None:
+    # Bloc d'avertissement écrit dans le .arx en tête de la section
+    # entropique quand des delta_ij < 0 ont été détectés.
+    fichier.write("===============================================================\n")
+    fichier.write("  !! WARNING : negative delocalization indices detected\n")
+    fichier.write("===============================================================\n")
+    fichier.write(f" Number of pairs with delta_ij < 0 : {len(paires_neg)}\n")
+    fichier.write(" Shannon entropy assumes non-negative contributions ; negative\n")
+    fichier.write(" values are silently skipped in the sum -sum p log2 p, so the\n")
+    fichier.write(" resulting H_LDM / H_Q / H_S values on these domains are not\n")
+    fichier.write(" strictly Shannon entropies. Interpret with caution.\n")
+    fichier.write(" First offending pairs (up to 20) :\n")
+    for (i, j, v) in paires_neg[:20]:
+        fichier.write(f"   pair ({i:>3d}, {j:>3d})  delta_ij = {v:>14.6e}\n")
+    if len(paires_neg) > 20:
+        fichier.write(f"   ... ({len(paires_neg) - 20} more)\n")
+    fichier.write("===============================================================\n\n")
+
+
+def entropy_ecrire_section(fichier, resultats_entropie, cycles_classes=None,
+                           matrice_ldm=None, numeros_atomiques=None) -> None:
     if not resultats_entropie:
         return
 
     entropy_ecrire_intro(fichier)
+
+    # Détection globale des delta_ij négatifs sur le sous-graphe atomes lourds.
+    # Un seul avertissement en haut de la section entropique, quelle que soit
+    # la scope (cycle ou global) où le probleme apparait.
+    if matrice_ldm is not None and numeros_atomiques is not None:
+        atomes_lourds = entropy_liste_atomes_lourds(numeros_atomiques)
+        paires_neg = entropy_detecter_deltas_negatifs(matrice_ldm, atomes_lourds)
+        if paires_neg:
+            entropy_ecrire_avertissement_deltas_negatifs(fichier, paires_neg)
+            print(f"[WARN] {len(paires_neg)} pair(s) with negative delta_ij detected "
+                  f"(see ENTROPY section of the .arx report).")
 
     # --- Détail par cycle (style HOMA/LDM par cycle) ---
     fichier.write("===============================================================\n")
@@ -4364,10 +4347,10 @@ def generer_nom_fichier_integre(nom_fichier_ldm: str) -> str:
 
 
 # ============================================================
-# AroX v0.3.3 — STATIC HOMA+LDM + HOMA MD TRAJECTORY MODE
+# AroX v0.3.4 — STATIC HOMA+LDM + HOMA MD TRAJECTORY MODE
 # ============================================================
 
-PROGRAM_NAME = "AroX.v0.3.3"
+PROGRAM_NAME = "AroX.v0.3.4"
 
 SYMBOL_TO_Z_AROX = {
     "H": 1, "C": 6, "N": 7, "O": 8, "F": 9,
@@ -4541,6 +4524,8 @@ def enregistrer_fichier_integre(
     homa_totale_data: object,
     skipped_homa: List[Dict[str, object]],
     resultats_entropie: List[Dict[str, object]] = None,
+    matrice_ldm_complete=None,
+    numeros_atomiques_geom=None,
 ) -> None:
     mode_ldm = nom_fichier_ldm != ""
     with open(nom_fichier_sortie, "w", encoding="utf-8") as fichier:
@@ -4594,7 +4579,11 @@ def enregistrer_fichier_integre(
 
             # Section entropique (H_LDM / H_Q / H_S) — uniquement si LDM fournie.
             if resultats_entropie:
-                entropy_ecrire_section(fichier, resultats_entropie, cycles_classes)
+                entropy_ecrire_section(
+                    fichier, resultats_entropie, cycles_classes,
+                    matrice_ldm=matrice_ldm_complete,
+                    numeros_atomiques=numeros_atomiques_geom,
+                )
                 fichier.write("\n")
         else:
             fichier.write("===============================================================\n")
@@ -4895,7 +4884,7 @@ def arox_ecrire_fichier_homa_trajectoire(
         f.write(" Cycle tracking      : cycles detected/forced on the first frame, then followed by atom indices\n")
         f.write(" Shared cycles       : AUTO cycles + optional free MANUAL cycles + generated FUSED cycles\n")
         f.write(" Fused cycle rule    : symmetric difference of auto/manual cycle edges\n")
-        f.write(" LDM mode            : disabled for trajectory input in v0.3.3\n")
+        f.write(" LDM mode            : disabled for trajectory input in v0.3.4\n")
         f.write("===============================================================\n\n")
 
         f.write(" Parameters used for HOMA\n")
@@ -5198,6 +5187,8 @@ def main_integre_homa_ldm() -> None:
         homa_totale_data=homa_totale_data,
         skipped_homa=skipped_homa,
         resultats_entropie=resultats_entropie,
+        matrice_ldm_complete=matrice_ldm_complete,
+        numeros_atomiques_geom=numeros_atomiques_geom,
     )
 
     afficher_resume_terminal_integre(
