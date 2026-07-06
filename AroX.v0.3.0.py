@@ -3,14 +3,14 @@
 # ==============================================================
 #  Author      : Aria Noroozi
 #  Affiliation : Laboratoire de Chimie Théorique (LCT), 2026
-#  Version     : 0.2.0
+#  Version     : 0.3.0
 #  License     : MIT (see LICENSE file)
 #  Repository  : https://github.com/ariaX1973/AroX-Aromaticity-Descriptors
 #
 #  How to cite
 #  -----------
 #  Noroozi, A. (2026). AroX — Aromaticity Descriptors (HOMA + LDM),
-#  v0.2.0 [computer software]. Laboratoire de Chimie Théorique (LCT).
+#  v0.3.0 [computer software]. Laboratoire de Chimie Théorique (LCT).
 #  https://github.com/ariaX1973/AroX-Aromaticity-Descriptors
 #
 #  BibTeX
@@ -19,15 +19,48 @@
 #    author      = {Noroozi, Aria},
 #    title       = {{AroX} --- Aromaticity Descriptors (HOMA + LDM)},
 #    year        = {2026},
-#    version     = {0.2.0},
+#    version     = {0.3.0},
 #    institution = {Laboratoire de Chimie Th{\'e}orique (LCT)},
 #    url         = {https://github.com/ariaX1973/AroX-Aromaticity-Descriptors}
 #  }
 # ==============================================================
 
-# ==============================
-# LIBRARIES
-# ==============================
+
+# ============================================================
+#  TABLE DES MATIÈRES
+# ============================================================
+#  BLOC 1   — Constantes globales, tables de rayons, étiquettes
+#  BLOC 2   — Lecture et validation des fichiers d'entrée (.dat)
+#  BLOC 3   — Paramètres de référence (EG, EG-hetero, CUSTOM)
+#  BLOC 4   — Connectivité moléculaire et adaptation des rayons
+#  BLOC 5   — Détection, canonisation, filtrage, classification des cycles
+#  BLOC 6   — Construction de la matrice LDM de référence
+#  BLOC 7   — Extraction des sous-matrices LDM et contrôle de symétrie
+#  BLOC 8   — Calcul des distances, matrice différence, contributions globales
+#  BLOC 8B  — Analyse spatiale pondérée et homogénéité par orbites
+#  BLOC 9   — Contributions par orbites et moyennes réelles
+#  BLOC 9B  — Analyse Q / CT / homogénéité d'orbite
+#  BLOC 10  — Analyse complète d'un cycle traitable
+#  BLOC 11  — Classement global des cycles
+#  BLOC 12  — Rapport préliminaire (structure, types d'atomes)
+#  BLOC 13  — Écriture du fichier .arx (mode LDM historique)
+#  BLOC 13B — Analyse globale atomes lourds (Q(G), S(G), S-hom(G))
+#  BLOC 13C — Descripteurs entropiques H_LDM / H_Q / H_S  (v0.3)
+#  BLOC 14  — Affichage terminal du résumé LDM
+#  BLOC 15  — main() historique (LDM seul)
+#  BLOC 16  — HOMA intégré sur les mêmes cycles que LDM
+#  BLOC 17A — Mode trajectoire MD HOMA
+#  BLOC 17  — main_integre_homa_ldm()  ← point d'entrée du programme
+# ============================================================
+
+
+# ============================================================
+# BLOC 1 — LIBRAIRIES ET CONSTANTES GLOBALES
+# ============================================================
+# Numpy pour l'algèbre linéaire, math pour log2, os pour la lecture
+# de fichiers. Toutes les constantes numériques utilisées ailleurs
+# dans le programme sont regroupées ici pour être facilement ajustées.
+# ============================================================
 
 import numpy as np
 import math
@@ -94,9 +127,14 @@ ORIGINE_AUTO_MANUEL = "AUTO+MANUEL"
 ORIGINE_FUSED = "FUSED"
 
 
-# ==============================
-# BLOC 2 — LECTURE ET VALIDATION DES FICHIERS D’ENTRÉE
-# ==============================
+# ============================================================
+# BLOC 2 — LECTURE ET VALIDATION DES FICHIERS D'ENTRÉE (.dat)
+# ============================================================
+# Deux fichiers .dat sont attendus : la matrice LDM et la matrice
+# de distances (en Bohr). Les fonctions ci-dessous valident la
+# cohérence des deux fichiers (même nombre d'atomes, même ordre)
+# et convertissent les distances en Ångström.
+# ============================================================
 
 # ==============================
 # FONCTION DE DEMANDE DU FICHIER LDM
@@ -214,9 +252,14 @@ def convertir_matrice_bohr_en_angstrom(matrice: np.ndarray) -> np.ndarray:
     return matrice * BOHR_TO_ANGSTROM
 
 
-# ==============================
-# BLOC 3 — DEMANDE ET GESTION DES PARAMÈTRES DE RÉFÉRENCE
-# ==============================
+# ============================================================
+# BLOC 3 — PARAMÈTRES DE RÉFÉRENCE (EG, EG-hetero, CUSTOM)
+# ============================================================
+# Trois valeurs epsilon (ortho, para, meta) définissent la matrice
+# LDM idéale du benzène. Trois modes possibles : EG (défauts 7/12,
+# 1/6, 1/12), EG-hetero (généralisation aux hétéroatomes) ou
+# CUSTOM (valeurs saisies par l'utilisateur).
+# ============================================================
 
 # ==============================
 # FONCTION DE DEMANDE DES PARAMÈTRES UTILISATEUR
@@ -341,9 +384,13 @@ def construire_dictionnaire_parametres(
     }
 
 
-# ==============================
+# ============================================================
 # BLOC 4 — CONNECTIVITÉ MOLÉCULAIRE ET ADAPTATION DES RAYONS
-# ==============================
+# ============================================================
+# Reconstruction du graphe de liaisons à partir des distances et
+# de rayons covalents adaptés selon l'hybridation (sp / sp² / sp³)
+# détectée par le nombre de voisins.
+# ============================================================
 
 # ==============================
 # FONCTION DE CONSTRUCTION DE LA CONNECTIVITÉ DE BASE
@@ -550,11 +597,14 @@ def afficher_connectivite(connectivite: Dict[int, List[int]]) -> str:
     return sortie
 
 
-# ==============================
+# ============================================================
 # BLOC 5 — DÉTECTION, CANONISATION, FILTRAGE ET CLASSIFICATION DES CYCLES
-# ==============================
-# BLOC 5 — DÉTECTION, CANONISATION, FILTRAGE ET CLASSIFICATION DES CYCLES
-# ==============================
+# ============================================================
+# Énumération de tous les cycles atomiques du graphe de connectivité,
+# canonisation (élimination des doublons issus des rotations/parcours),
+# filtrage, saisie manuelle optionnelle, fusion des cycles auto/manuels
+# et génération des cycles fusionnés (différence symétrique des arêtes).
+# ============================================================
 
 # ==============================
 # FONCTION DE CANONISATION DES CYCLES
@@ -1243,9 +1293,14 @@ def fusionner_cycles_auto_manuels_et_generer_fusionnes(
     )
 
 
-# ==============================
-# BLOC 6 — CONSTRUCTION DE LA MATRICE DE RÉFÉRENCE
-# ==============================
+# ============================================================
+# BLOC 6 — CONSTRUCTION DE LA MATRICE LDM DE RÉFÉRENCE
+# ============================================================
+# La matrice de référence LDM_ref représente la molécule "parfaitement
+# aromatique" de même topologie que le cycle étudié : les orbites
+# (ortho / meta / para / plus lointaines) reçoivent les valeurs
+# theoriques epsilon_o, epsilon_m, epsilon_p...
+# ============================================================
 
 # ==============================
 # FONCTION DE CALCUL DU NOMBRE DE PAIRES PI DE RÉFÉRENCE
@@ -1473,9 +1528,13 @@ def afficher_matrice_reference(matrice_reference: np.ndarray) -> str:
     return sortie
 
 
-# ==============================
+# ============================================================
 # BLOC 7 — EXTRACTION DES SOUS-MATRICES LDM ET CONTRÔLE DE SYMÉTRIE
-# ==============================
+# ============================================================
+# Découpe la matrice LDM complète pour ne garder que les lignes/colonnes
+# des atomes du cycle, puis vérifie la symétrie (LDM = LDM^T à
+# TOLERANCE_SYMETRIE près).
+# ============================================================
 
 # ==============================
 # FONCTION D’EXTRACTION DE LA SOUS-MATRICE LDM D’UN CYCLE
@@ -1548,9 +1607,13 @@ def extraire_sous_matrice_distances(
     return matrice_distances_complete[np.ix_(indices_python, indices_python)]
 
 
-# ==============================
-# BLOC 8 — CALCUL DES DISTANCES, MATRICE DIFFÉRENCE ET CONTRIBUTIONS GLOBALES
-# ==============================
+# ============================================================
+# BLOC 8 — DISTANCES, MATRICE DIFFÉRENCE ET CONTRIBUTIONS GLOBALES
+# ============================================================
+# Calcule LDM_ref - LDM_obs sur le cycle, en extrait des scalaires
+# globaux (norme de Frobenius, RMS, ratios diagonaux/hors-diagonaux)
+# qui serviront aux descripteurs LDM synthétiques.
+# ============================================================
 
 # ==============================
 # FONCTION DE CALCUL DE LA MATRICE DIFFÉRENCE
@@ -1668,9 +1731,13 @@ def afficher_matrice_difference(matrice_difference: np.ndarray) -> str:
     return sortie
 
 
-# ==============================
+# ============================================================
 # BLOC 8B — ANALYSE SPATIALE PONDÉRÉE ET HOMOGÉNÉITÉ PAR ORBITES
-# ==============================
+# ============================================================
+# Pondération de chaque contribution par la distance R_ij et
+# regroupement par orbites topologiques. Fournit S(cycle), S_hom
+# et des indicateurs de dispersion.
+# ============================================================
 
 def construire_matrice_q_ponderee(
     sous_matrice_ldm: np.ndarray,
@@ -1862,9 +1929,13 @@ def preparer_analyse_spatiale_cycle(
     }
 
 
-# ==============================
-# BLOC 9 — CALCUL DES CONTRIBUTIONS PAR ORBITES ET DES MOYENNES RÉELLES
-# ==============================
+# ============================================================
+# BLOC 9 — CONTRIBUTIONS PAR ORBITES ET MOYENNES RÉELLES
+# ============================================================
+# Décompose LDM_obs par orbite topologique (ortho, meta, para, ...)
+# et calcule les moyennes / écarts par orbite pour comparaison au
+# modèle EG.
+# ============================================================
 
 # ==============================
 # FONCTION DE CONVERSION PAIRE CHIMIQUE → PAIRE LOCALE
@@ -2002,9 +2073,12 @@ def preparer_contributions_orbites(
         "tableau_detaille_paires": tableau_detaille_paires
     }
 
-# ==============================
+# ============================================================
 # BLOC 9B — ANALYSE Q / CT / HOMOGÉNÉITÉ D'ORBITE
-# ==============================
+# ============================================================
+# Descripteurs synthétiques Q_Frob, Q_RMS, indice de transfert de
+# charge (CT) et homogénéité S_hom au niveau du cycle isolé.
+# ============================================================
 
 def extraire_sous_matrice_distances(
     matrice_distances_complete: np.ndarray,
@@ -2260,9 +2334,13 @@ def preparer_analyse_q_et_ct(
         "ct_absolu": donnees_ct["ct_absolu"],
         "ct_relatif_pourcent": donnees_ct["ct_relatif_pourcent"]
     }
-# ==============================
-# BLOC 10 — ANALYSE COMPLÈTE D’UN CYCLE TRAITABLE V2
-# ==============================
+# ============================================================
+# BLOC 10 — ANALYSE COMPLÈTE D'UN CYCLE TRAITABLE
+# ============================================================
+# Orchestrateur : pour un cycle donné, enchaîne extraction LDM,
+# construction de la référence, calcul des différences, ratios,
+# Q, S, S_hom, et remplit un dictionnaire résultat.
+# ============================================================
 
 # ==============================
 def analyser_cycle_v2(
@@ -2418,9 +2496,12 @@ def preparer_resultats_cycles_analyses(
     return resultats_cycles
 
 
-# ==============================
+# ============================================================
 # BLOC 11 — CLASSEMENT GLOBAL DES CYCLES
-# ==============================
+# ============================================================
+# Ordonne l'ensemble des résultats de cycles pour l'affichage final
+# (par type puis par indices).
+# ============================================================
 
 # ==============================
 # FONCTION DE TRI DES RÉSULTATS PAR DISTANCE DE FROBENIUS COMPLÈTE
@@ -2464,9 +2545,13 @@ def preparer_classement_final(
     return attribuer_rangs_avec_exaequo(resultats_tries)
 
 
-# ==============================
-# BLOC 12 — RAPPORT PRÉLIMINAIRE
-# ==============================
+# ============================================================
+# BLOC 12 — RAPPORT PRÉLIMINAIRE (structure moléculaire)
+# ============================================================
+# Construit la partie descriptive du rapport : types de carbone
+# détectés, rayons adaptés, connectivité, liste des cycles avant
+# toute analyse LDM/HOMA.
+# ============================================================
 
 # ==============================
 # FONCTION DE GÉNÉRATION DU RAPPORT PRÉLIMINAIRE
@@ -2486,9 +2571,12 @@ def generer_rapport_preliminaire(
     return rapport
 
 
-# ==============================
-# BLOC 13 — ÉCRITURE DU FICHIER .LDM
-# ==============================
+# ============================================================
+# BLOC 13 — ÉCRITURE DU RAPPORT LDM (.arx historique)
+# ============================================================
+# Format texte lisible du rapport LDM autonome (avant intégration
+# HOMA + entropie). Encore utilisé par le main() historique.
+# ============================================================
 
 # ==============================
 # FONCTION DE GÉNÉRATION DU NOM DU FICHIER .LDM
@@ -2847,9 +2935,13 @@ def ecrire_analyse_homogeneite_cycle(
 # ==============================
 
 
-# ==============================
-# BLOC 13B — ANALYSE GLOBALE ATOMES LOURDS
-# ==============================
+# ============================================================
+# BLOC 13B — ANALYSE GLOBALE ATOMES LOURDS (Q(G), S(G), S-hom(G))
+# ============================================================
+# Applique les descripteurs Q, S et S_hom non plus à un cycle
+# individuel mais au sous-graphe complet des atomes lourds.
+# Sert de référence globale à la molécule.
+# ============================================================
 
 def obtenir_indices_atomes_lourds(numeros_atomiques: List[int]) -> List[int]:
     return [i + 1 for i, z in enumerate(numeros_atomiques) if z != 1]
@@ -3087,9 +3179,402 @@ def enregistrer_fichier_ldm(
         )
 
 
-# ==============================
-# BLOC 14 — AFFICHAGE TERMINAL DU RÉSUMÉ
-# ==============================
+# ============================================================
+# BLOC 13C — DESCRIPTEURS ENTROPIQUES H_LDM / H_Q / H_S
+# ============================================================
+# Cahier des charges v2.0. Trois familles de descripteurs :
+#   - H_LDM : entropie complète (lambda_ii diagonaux + delta_ij hors diag.)
+#             décomposée en H_loc, H_deloc, H_part, w_loc, w_deloc,
+#             normalisée mu_LDM entre H_min_chem (limite localisée) et
+#             H_max_ref = log2(N_loc + N_deloc).
+#   - H_Q   : entropie de délocalisation pondérée par 1/R_ij.
+#   - H_S   : entropie de délocalisation pondérée par R_ij.
+#
+# Chaque descripteur est calculé sur deux domaines :
+#   - local  : atomes d'un cycle détecté  (paires par défaut = contour)
+#   - global : atomes lourds du graphe    (paires par défaut = toutes)
+#
+# Convention d'indexation : indices_cycle est en base 1 (identifiants
+# d'atomes affichés à l'utilisateur) ; les matrices numpy sont indexées
+# en base 0. La conversion est faite explicitement à l'entrée du bloc.
+# ============================================================
+
+ENTROPY_EPSILON = 1.0e-12
+ENTROPY_H_LDM_LOCAL_MODE_DEFAUT = "contour"
+ENTROPY_H_QS_LOCAL_MODE_DEFAUT = "contour"
+ENTROPY_GLOBAL_MODE_DEFAUT = "all"
+
+
+# ------------------------------------------------------------
+# UTILITAIRES : entropie de Shannon en bits
+# ------------------------------------------------------------
+
+def entropy_compute_shannon_bits(valeurs) -> float:
+    # H = -sum(p log2 p) avec p_k = valeurs_k / sum(valeurs).
+    # Ignore les p_k <= epsilon ; retourne 0.0 si la somme est nulle.
+    tableau = np.asarray(valeurs, dtype=float)
+    if tableau.size == 0:
+        return 0.0
+    total = float(np.sum(tableau))
+    if total <= ENTROPY_EPSILON:
+        return 0.0
+    probabilites = tableau / total
+    entropie = 0.0
+    for p in probabilites:
+        if p > ENTROPY_EPSILON:
+            entropie -= p * math.log2(p)
+    return entropie
+
+
+# ------------------------------------------------------------
+# CONSTRUCTION DES ENSEMBLES V_X ET D_X
+# ------------------------------------------------------------
+
+def entropy_liste_atomes_lourds(numeros_atomiques) -> List[int]:
+    # Renvoie les indices base 1 des atomes lourds (Z > 1).
+    return [i + 1 for i, z in enumerate(numeros_atomiques) if z > 1]
+
+
+def entropy_paires_contour_cycle(indices_cycle) -> List[Tuple[int, int]]:
+    # Paires (i, j) du contour du cycle, indices base 1, sans doublon.
+    n = len(indices_cycle)
+    paires = []
+    for pos in range(n):
+        a = indices_cycle[pos]
+        b = indices_cycle[(pos + 1) % n]
+        paires.append(tuple(sorted((a, b))))
+    return paires
+
+
+def entropy_paires_toutes_dans_ensemble(atomes) -> List[Tuple[int, int]]:
+    # Toutes les paires i < j de la liste d'atomes.
+    atomes_tries = sorted(atomes)
+    paires = []
+    for i_pos in range(len(atomes_tries)):
+        for j_pos in range(i_pos + 1, len(atomes_tries)):
+            paires.append((atomes_tries[i_pos], atomes_tries[j_pos]))
+    return paires
+
+
+def entropy_paires_bond_graphe(atomes, connectivite) -> List[Tuple[int, int]]:
+    # Uniquement les paires liées entre atomes lourds.
+    ensemble = set(atomes)
+    paires_vues = set()
+    for i in atomes:
+        voisins = connectivite.get(i, [])
+        for j in voisins:
+            if j in ensemble and j != i:
+                paires_vues.add(tuple(sorted((i, j))))
+    return sorted(paires_vues)
+
+
+# ------------------------------------------------------------
+# EXTRACTION DES TERMES DE LA MATRICE LDM
+# ------------------------------------------------------------
+
+def entropy_extraire_lambda(matrice_ldm, atomes) -> List[float]:
+    # Termes diagonaux (base 1 -> base 0).
+    return [float(matrice_ldm[i - 1, i - 1]) for i in atomes]
+
+
+def entropy_extraire_delta(matrice_ldm, paires) -> List[float]:
+    # Termes hors diagonale (base 1 -> base 0). Valeur absolue clippée en zéro pour rester >= 0.
+    valeurs = []
+    for (i, j) in paires:
+        v = float(matrice_ldm[i - 1, j - 1])
+        if abs(v) < ENTROPY_EPSILON:
+            v = 0.0
+        valeurs.append(v)
+    return valeurs
+
+
+def entropy_extraire_distances(matrice_distances, paires) -> List[float]:
+    # Distances R_ij en Å (base 1 -> base 0).
+    return [float(matrice_distances[i - 1, j - 1]) for (i, j) in paires]
+
+
+# ------------------------------------------------------------
+# ESTIMATION DES POPULATIONS N_i
+# ------------------------------------------------------------
+
+def entropy_estimer_populations_bassin(matrice_ldm, atomes) -> Dict[int, float]:
+    # N_i = lambda_ii + 1/2 sum_{j != i, j in atomes} delta_ij.
+    populations = {}
+    ensemble = set(atomes)
+    for i in atomes:
+        lam = float(matrice_ldm[i - 1, i - 1])
+        somme_delta = 0.0
+        for j in ensemble:
+            if j == i:
+                continue
+            somme_delta += float(matrice_ldm[i - 1, j - 1])
+        populations[i] = lam + 0.5 * somme_delta
+    return populations
+
+
+# ------------------------------------------------------------
+# CALCUL DE H_LDM (COMPLET) — décomposition + normalisation mu_LDM
+# ------------------------------------------------------------
+
+def entropy_calculer_H_LDM(matrice_ldm, atomes, paires) -> Dict[str, object]:
+    lambdas = entropy_extraire_lambda(matrice_ldm, atomes)
+    deltas = entropy_extraire_delta(matrice_ldm, paires)
+
+    n_loc = len(lambdas)
+    n_deloc = len(deltas)
+
+    L = float(sum(lambdas))
+    D = float(sum(deltas))
+    T = L + D
+
+    if T <= ENTROPY_EPSILON:
+        # Cas dégénéré (matrice LDM nulle sur le domaine)
+        return {
+            "n_loc": n_loc, "n_deloc": n_deloc,
+            "L": L, "D": D, "T": T,
+            "w_loc": 0.0, "w_deloc": 0.0,
+            "H_part": 0.0, "H_loc": 0.0, "H_deloc": 0.0,
+            "H_LDM": 0.0,
+            "H_min_chem": 0.0, "H_max_ref": 0.0,
+            "mu_LDM_raw_percent": 0.0, "mu_LDM_clipped_percent": 0.0,
+            "populations": {}
+        }
+
+    w_loc = L / T
+    w_deloc = D / T
+
+    H_loc = entropy_compute_shannon_bits(lambdas)
+    H_deloc = entropy_compute_shannon_bits(deltas) if D > ENTROPY_EPSILON else 0.0
+
+    # H_part = -(w_loc log2 w_loc + w_deloc log2 w_deloc)
+    H_part = 0.0
+    for w in (w_loc, w_deloc):
+        if w > ENTROPY_EPSILON:
+            H_part -= w * math.log2(w)
+
+    H_LDM = H_part + w_loc * H_loc + w_deloc * H_deloc
+
+    # Référence localisée chimique : delta = 0, lambda_ii = N_i.
+    populations = entropy_estimer_populations_bassin(matrice_ldm, atomes)
+    liste_Ni = [populations[i] for i in atomes]
+    H_min_chem = entropy_compute_shannon_bits(liste_Ni)
+
+    # Référence maximale : distribution uniforme sur N_loc + N_deloc bins.
+    total_bins = n_loc + n_deloc
+    H_max_ref = math.log2(total_bins) if total_bins > 1 else 0.0
+
+    denom = H_max_ref - H_min_chem
+    if abs(denom) > ENTROPY_EPSILON:
+        mu_raw = 100.0 * (H_LDM - H_min_chem) / denom
+    else:
+        mu_raw = 0.0
+    mu_clipped = max(0.0, min(100.0, mu_raw))
+
+    return {
+        "n_loc": n_loc, "n_deloc": n_deloc,
+        "L": L, "D": D, "T": T,
+        "w_loc": w_loc, "w_deloc": w_deloc,
+        "H_part": H_part, "H_loc": H_loc, "H_deloc": H_deloc,
+        "H_LDM": H_LDM,
+        "H_min_chem": H_min_chem, "H_max_ref": H_max_ref,
+        "mu_LDM_raw_percent": mu_raw,
+        "mu_LDM_clipped_percent": mu_clipped,
+        "populations": populations
+    }
+
+
+# ------------------------------------------------------------
+# CALCULS DE H_Q (delta/R) ET H_S (delta*R)
+# ------------------------------------------------------------
+
+def entropy_calculer_H_pondere(matrice_ldm, matrice_distances, paires, ponderation: str) -> Dict[str, object]:
+    # ponderation ∈ {"Q", "S"}. Q = delta_ij / R_ij ; S = delta_ij * R_ij.
+    deltas = entropy_extraire_delta(matrice_ldm, paires)
+    distances = entropy_extraire_distances(matrice_distances, paires)
+
+    contributions = []
+    for delta_ij, R_ij in zip(deltas, distances):
+        if R_ij <= ENTROPY_EPSILON:
+            continue
+        if ponderation == "Q":
+            contributions.append(delta_ij / R_ij)
+        else:
+            contributions.append(delta_ij * R_ij)
+
+    n_deloc = len(contributions)
+    D_w = float(sum(contributions))
+    H = entropy_compute_shannon_bits(contributions)
+    H_max = math.log2(n_deloc) if n_deloc > 1 else 0.0
+    mu = (100.0 * H / H_max) if H_max > ENTROPY_EPSILON else 0.0
+    mu = max(0.0, min(100.0, mu))
+
+    return {
+        "descriptor": "H_Q" if ponderation == "Q" else "H_S",
+        "weighting": "delta_ij/R_ij" if ponderation == "Q" else "delta_ij*R_ij",
+        "n_deloc": n_deloc,
+        "D_weighted": D_w,
+        "H": H,
+        "H_max": H_max,
+        "mu_percent": mu
+    }
+
+
+# ------------------------------------------------------------
+# ORCHESTRATION LOCALE (par cycle) ET GLOBALE (atomes lourds)
+# ------------------------------------------------------------
+
+def entropy_analyser_cycle(matrice_ldm, matrice_distances, cycle_info) -> Dict[str, object]:
+    indices_cycle = cycle_info["indices_cycle"]
+    numero_cycle = cycle_info.get("numero_cycle", 0)
+
+    atomes = list(indices_cycle)
+    paires = entropy_paires_contour_cycle(indices_cycle)
+
+    resultat_H_LDM = entropy_calculer_H_LDM(matrice_ldm, atomes, paires)
+    resultat_H_Q = entropy_calculer_H_pondere(matrice_ldm, matrice_distances, paires, "Q")
+    resultat_H_S = entropy_calculer_H_pondere(matrice_ldm, matrice_distances, paires, "S")
+
+    return {
+        "scope": "cycle",
+        "cycle_id": numero_cycle,
+        "atoms": atomes,
+        "pairs_mode": ENTROPY_H_LDM_LOCAL_MODE_DEFAUT,
+        "H_LDM": resultat_H_LDM,
+        "H_Q": resultat_H_Q,
+        "H_S": resultat_H_S
+    }
+
+
+def entropy_analyser_global(matrice_ldm, matrice_distances, numeros_atomiques) -> Dict[str, object]:
+    atomes = entropy_liste_atomes_lourds(numeros_atomiques)
+    paires = entropy_paires_toutes_dans_ensemble(atomes)
+
+    resultat_H_LDM = entropy_calculer_H_LDM(matrice_ldm, atomes, paires)
+    resultat_H_Q = entropy_calculer_H_pondere(matrice_ldm, matrice_distances, paires, "Q")
+    resultat_H_S = entropy_calculer_H_pondere(matrice_ldm, matrice_distances, paires, "S")
+
+    return {
+        "scope": "global",
+        "cycle_id": "-",
+        "atoms": atomes,
+        "pairs_mode": ENTROPY_GLOBAL_MODE_DEFAUT,
+        "H_LDM": resultat_H_LDM,
+        "H_Q": resultat_H_Q,
+        "H_S": resultat_H_S
+    }
+
+
+def entropy_preparer_resultats(
+    matrice_ldm,
+    matrice_distances,
+    numeros_atomiques,
+    cycles_classes
+) -> List[Dict[str, object]]:
+    # Renvoie une liste : [ligne par cycle traitable, ..., ligne global].
+    resultats = []
+    for cycle_info in cycles_classes:
+        if cycle_info.get("statut_cycle") != STATUT_CYCLE_TRAITE:
+            continue
+        resultats.append(entropy_analyser_cycle(matrice_ldm, matrice_distances, cycle_info))
+    resultats.append(entropy_analyser_global(matrice_ldm, matrice_distances, numeros_atomiques))
+    return resultats
+
+
+# ------------------------------------------------------------
+# ÉCRITURE DE LA SECTION ENTROPY_DESCRIPTORS DANS LE .arx
+# ------------------------------------------------------------
+
+def entropy_ecrire_section(fichier, resultats_entropie) -> None:
+    fichier.write("\n")
+    fichier.write("=" * 100 + "\n")
+    fichier.write("                    ENTROPY_DESCRIPTORS (H_LDM, H_Q, H_S)\n")
+    fichier.write("=" * 100 + "\n")
+    fichier.write("Toutes les entropies sont en bits (log2). mu en %.\n")
+    fichier.write("Domaine cycle : paires par défaut = contour du cycle.\n")
+    fichier.write("Domaine global : atomes lourds (Z > 1) + toutes paires i<j.\n")
+    fichier.write("\n")
+
+    # --- Tableau H_LDM complet ---
+    fichier.write("--- Tableau H_LDM (entropie complète : λ_ii + δ_ij) ---\n")
+    fichier.write(
+        f"{'scope':<7} {'cycle':<6} {'atoms':<24} {'pairs':<8} "
+        f"{'Nloc':>5} {'Ndeloc':>7} {'L':>10} {'D':>10} "
+        f"{'w_loc':>7} {'w_del':>7} {'H_part':>8} {'H_loc':>8} {'H_del':>8} "
+        f"{'H_LDM':>8} {'Hmin_ch':>8} {'Hmax_rf':>8} "
+        f"{'mu_raw%':>9} {'mu_clip%':>9}\n"
+    )
+    for r in resultats_entropie:
+        h = r["H_LDM"]
+        atomes_txt = str(r["atoms"])
+        if len(atomes_txt) > 22:
+            atomes_txt = atomes_txt[:19] + "...]"
+        fichier.write(
+            f"{r['scope']:<7} {str(r['cycle_id']):<6} {atomes_txt:<24} {r['pairs_mode']:<8} "
+            f"{h['n_loc']:>5d} {h['n_deloc']:>7d} {h['L']:>10.4f} {h['D']:>10.4f} "
+            f"{h['w_loc']:>7.4f} {h['w_deloc']:>7.4f} {h['H_part']:>8.4f} {h['H_loc']:>8.4f} {h['H_deloc']:>8.4f} "
+            f"{h['H_LDM']:>8.4f} {h['H_min_chem']:>8.4f} {h['H_max_ref']:>8.4f} "
+            f"{h['mu_LDM_raw_percent']:>9.3f} {h['mu_LDM_clipped_percent']:>9.3f}\n"
+        )
+
+    # --- Tableau H_Q / H_S ---
+    fichier.write("\n")
+    fichier.write("--- Tableau H_Q et H_S (entropies de délocalisation pondérées) ---\n")
+    fichier.write(
+        f"{'scope':<7} {'cycle':<6} {'atoms':<24} {'pairs':<8} "
+        f"{'descr':<5} {'Ndeloc':>7} {'D_w':>10} {'H':>8} {'H_max':>8} {'mu %':>8} {'weighting':<14}\n"
+    )
+    for r in resultats_entropie:
+        atomes_txt = str(r["atoms"])
+        if len(atomes_txt) > 22:
+            atomes_txt = atomes_txt[:19] + "...]"
+        for cle in ("H_Q", "H_S"):
+            hh = r[cle]
+            fichier.write(
+                f"{r['scope']:<7} {str(r['cycle_id']):<6} {atomes_txt:<24} {r['pairs_mode']:<8} "
+                f"{hh['descriptor']:<5} {hh['n_deloc']:>7d} {hh['D_weighted']:>10.4f} "
+                f"{hh['H']:>8.4f} {hh['H_max']:>8.4f} {hh['mu_percent']:>8.3f} {hh['weighting']:<14}\n"
+            )
+    fichier.write("=" * 100 + "\n")
+
+
+# ------------------------------------------------------------
+# AFFICHAGE TERMINAL COMPACT (troisième tableau du RÉSUMÉ)
+# ------------------------------------------------------------
+
+def entropy_afficher_terminal(resultats_entropie) -> None:
+    if not resultats_entropie:
+        return
+    print("=" * 130)
+    print("RÉSUMÉ TERMINAL — DESCRIPTEURS ENTROPIQUES (bits)")
+    print("=" * 130)
+    print(
+        f"{'Scope':<7} {'Cycle':<6} {'Atoms':<20} "
+        f"{'H_LDM':>8} {'mu_LDM%':>9} {'H_loc':>8} {'H_del':>8} "
+        f"{'H_Q':>8} {'mu_Q%':>8} {'H_S':>8} {'mu_S%':>8}"
+    )
+    for r in resultats_entropie:
+        atomes_txt = str(r["atoms"])
+        if len(atomes_txt) > 18:
+            atomes_txt = atomes_txt[:15] + "...]"
+        h = r["H_LDM"]
+        q = r["H_Q"]
+        s = r["H_S"]
+        print(
+            f"{r['scope']:<7} {str(r['cycle_id']):<6} {atomes_txt:<20} "
+            f"{h['H_LDM']:>8.4f} {h['mu_LDM_clipped_percent']:>9.3f} "
+            f"{h['H_loc']:>8.4f} {h['H_deloc']:>8.4f} "
+            f"{q['H']:>8.4f} {q['mu_percent']:>8.3f} "
+            f"{s['H']:>8.4f} {s['mu_percent']:>8.3f}"
+        )
+
+
+# ============================================================
+# BLOC 14 — AFFICHAGE TERMINAL DU RÉSUMÉ (tableaux LDM)
+# ============================================================
+# Formatage sur mesure du grand tableau récapitulatif LDM affiché
+# en fin d'exécution. Largeurs de colonnes adaptatives selon les
+# indices de cycle.
+# ============================================================
 
 # ==============================
 # FONCTION DE CALCUL DE LA LARGEUR DE LA COLONNE INDICES POUR LE TERMINAL
@@ -3171,9 +3656,13 @@ def afficher_message_final(nom_fichier_sortie: str) -> None:
     print(f"Résultats détaillés enregistrés dans : {nom_fichier_sortie}")
 
 
-# ==============================
-# BLOC 15 — FONCTION PRINCIPALE MAIN()
-# ==============================
+# ============================================================
+# BLOC 15 — FONCTION main() HISTORIQUE (LDM SEUL)
+# ============================================================
+# Point d'entrée historique du programme LDM autonome (avant le
+# passage à HOMA+LDM+entropie). Conservé pour rétro-compatibilité
+# mais non utilisé par __main__.
+# ============================================================
 
 def preparer_cycles_classes(
     cycles_dicts: List[Dict[str, object]],
@@ -3357,6 +3846,11 @@ def main() -> None:
 
 # ============================================================
 # BLOC 16 — HOMA INTÉGRÉ SUR LES MÊMES CYCLES QUE LDM
+# ============================================================
+# Implémentation généralisée du HOMA (Kruszewski-Krygowski, 1972)
+# étendue aux liaisons hétéroatomiques via les paramètres alpha/R_opt
+# des tables internes. Réutilise les cycles déjà validés pour LDM.
+# ============================================================
 # ============================================================
 
 HOMA_PARAMS = {
@@ -3722,10 +4216,10 @@ def generer_nom_fichier_integre(nom_fichier_ldm: str) -> str:
 
 
 # ============================================================
-# AroX v0.2.0 — STATIC HOMA+LDM + HOMA MD TRAJECTORY MODE
+# AroX v0.3.0 — STATIC HOMA+LDM + HOMA MD TRAJECTORY MODE
 # ============================================================
 
-PROGRAM_NAME = "AroX.v0.2.0"
+PROGRAM_NAME = "AroX.v0.3.0"
 
 SYMBOL_TO_Z_AROX = {
     "H": 1, "C": 6, "N": 7, "O": 8, "F": 9,
@@ -3837,6 +4331,7 @@ def enregistrer_fichier_integre(
     resultats_homa: List[Dict[str, object]],
     homa_totale_data: object,
     skipped_homa: List[Dict[str, object]],
+    resultats_entropie: List[Dict[str, object]] = None,
 ) -> None:
     mode_ldm = nom_fichier_ldm != ""
     with open(nom_fichier_sortie, "w", encoding="utf-8") as fichier:
@@ -3887,6 +4382,11 @@ def enregistrer_fichier_integre(
                 analyse_globale=analyse_globale,
             )
             fichier.write("\n\n")
+
+            # Section entropique (H_LDM / H_Q / H_S) — uniquement si LDM fournie.
+            if resultats_entropie:
+                entropy_ecrire_section(fichier, resultats_entropie)
+                fichier.write("\n")
         else:
             fichier.write("===============================================================\n")
             fichier.write("                 LDM ANALYSIS\n")
@@ -3910,7 +4410,12 @@ def afficher_resume_terminal_integre(
     homa_totale_data: object,
     skipped_homa: List[Dict[str, object]],
     mode_ldm: bool,
+    resultats_entropie: List[Dict[str, object]] = None,
 ) -> None:
+    # Trois tableaux successifs dans le résumé final :
+    #   1) LDM         (existant, uniquement si mode_ldm)
+    #   2) ENTROPIE H  (nouveau, uniquement si mode_ldm)
+    #   3) HOMA        (toujours)
     print()
     if mode_ldm:
         afficher_resume_terminal_cycles(resultats_classes=resultats_ldm_classes, analyse_globale=analyse_globale)
@@ -3921,6 +4426,9 @@ def afficher_resume_terminal_integre(
         print("LDM ignoré : aucun fichier LDM fourni. Mode HOMA seul actif.")
         print("=" * 80)
     print()
+    if mode_ldm and resultats_entropie:
+        entropy_afficher_terminal(resultats_entropie)
+        print()
     homa_afficher_tableau_resume_cycles(resultats_homa, homa_totale_data)
     if skipped_homa:
         print("\nCycles ignorés en HOMA car paramètres de liaison manquants :")
@@ -4165,7 +4673,7 @@ def arox_ecrire_fichier_homa_trajectoire(
         f.write(" Cycle tracking      : cycles detected/forced on the first frame, then followed by atom indices\n")
         f.write(" Shared cycles       : AUTO cycles + optional free MANUAL cycles + generated FUSED cycles\n")
         f.write(" Fused cycle rule    : symmetric difference of auto/manual cycle edges\n")
-        f.write(" LDM mode            : disabled for trajectory input in v0.2.0\n")
+        f.write(" LDM mode            : disabled for trajectory input in v0.3.0\n")
         f.write("===============================================================\n\n")
 
         f.write(" Parameters used for HOMA\n")
@@ -4324,7 +4832,15 @@ def arox_analyser_trajectoire_homa(nom_fichier: str, dt_fs: float) -> None:
     print("=" * 100)
 
 # ============================================================
-# BLOC 17 — MAIN INTÉGRÉ HOMA + LDM
+# BLOC 17 — MAIN INTÉGRÉ HOMA + LDM + ENTROPIE (v0.3)
+# ============================================================
+# Point d'entrée réellement exécuté par __main__. Enchaîne :
+#   1. Lecture géométrie/distances + fichier LDM optionnel
+#   2. Détection connectivité + cycles (auto/manuel/fusés)
+#   3. Analyses LDM par cycle + globale atomes lourds
+#   4. Descripteurs entropiques H_LDM / H_Q / H_S  (nouveau)
+#   5. HOMA généralisé sur les mêmes cycles
+#   6. Écriture du rapport .arx + résumé terminal
 # ============================================================
 
 def main_integre_homa_ldm() -> None:
@@ -4408,6 +4924,7 @@ def main_integre_homa_ldm() -> None:
 
     resultats_ldm_classes: List[Dict[str, object]] = []
     analyse_globale = None
+    resultats_entropie: List[Dict[str, object]] = []
 
     if mode_ldm:
         resultats_ldm = preparer_resultats_cycles_analyses(
@@ -4423,6 +4940,14 @@ def main_integre_homa_ldm() -> None:
             matrice_ldm_complete=matrice_ldm_complete,
             matrice_distances_complete=matrice_distances,
             connectivite_finale=connectivite_finale,
+        )
+
+        # Descripteurs entropiques H_LDM / H_Q / H_S : locaux par cycle traité + global atomes lourds
+        resultats_entropie = entropy_preparer_resultats(
+            matrice_ldm=matrice_ldm_complete,
+            matrice_distances=matrice_distances,
+            numeros_atomiques=numeros_atomiques_geom,
+            cycles_classes=cycles_classes,
         )
 
     resultats_homa, skipped_homa = homa_preparer_resultats_cycles(
@@ -4450,6 +4975,7 @@ def main_integre_homa_ldm() -> None:
         resultats_homa=resultats_homa,
         homa_totale_data=homa_totale_data,
         skipped_homa=skipped_homa,
+        resultats_entropie=resultats_entropie,
     )
 
     afficher_resume_terminal_integre(
@@ -4459,6 +4985,7 @@ def main_integre_homa_ldm() -> None:
         homa_totale_data=homa_totale_data,
         skipped_homa=skipped_homa,
         mode_ldm=mode_ldm,
+        resultats_entropie=resultats_entropie,
     )
     afficher_message_final(nom_fichier_sortie)
 

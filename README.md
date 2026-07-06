@@ -7,7 +7,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/)
-[![Version](https://img.shields.io/badge/version-0.2.0-green.svg)](AroX.v0.2.0.py)
+[![Version](https://img.shields.io/badge/version-0.3.0-green.svg)](AroX.v0.3.0.py)
 
 ---
 
@@ -29,12 +29,18 @@
 ## Présentation
 
 **AroX** est un programme autonome qui analyse l'aromaticité de cycles
-organiques en combinant deux descripteurs complémentaires :
+organiques en combinant **trois familles de descripteurs complémentaires** :
 
 | Descripteur | Nature | Référence |
 |---|---|---|
 | **HOMA** *(Harmonic Oscillator Model of Aromaticity)* | Basé sur les **distances de liaison** géométriques par rapport à une référence aromatique idéale. | Kruszewski & Krygowski, *Tetrahedron Lett.* 1972. |
-| **LDM** *(Local Distortion of Multiplicity)* | Basé sur la **matrice de densité locale** (Laplacien / densité électronique délocalisée) projetée sur les liaisons du cycle. | Implémentation interne LCT (générale, multi-paramètres EG / EG-hetero / CUSTOM). |
+| **LDM** *(Local Delocalization Matrix)* | Basé sur la **matrice de densité locale** (indices de délocalisation δ_ij) projetée sur les liaisons du cycle. Comparaison à la référence EG / EG-hetero / CUSTOM. | Implémentation LCT. |
+| **H** *(descripteurs entropiques, v0.3)* | **Entropies de Shannon** en bits sur les termes de la LDM : `H_LDM` (complet : λ_ii + δ_ij, décomposé en H_loc, H_deloc, H_part), `H_Q` (δ_ij/R_ij, favorise les contributions courtes), `H_S` (δ_ij·R_ij, favorise les contributions étendues). Normalisation μ_LDM entre la limite localisée chimique (H_min_chem) et la borne maximale (H_max_ref = log₂(N_loc + N_deloc)). | Cahier des charges LCT v2.0. |
+
+Les trois familles sont calculées **localement** sur chaque cycle et
+**globalement** sur le sous-graphe des atomes lourds (Z > 1) de la
+molécule. Le résumé final du programme affiche successivement les trois
+tableaux : **LDM**, **H**, puis **HOMA**.
 
 Le programme gère :
 
@@ -86,7 +92,7 @@ Python ≥ 3.8 suffit (annotations de type modernes utilisées).
 ## Démarrage rapide
 
 ```bash
-python AroX.v0.2.0.py
+python AroX.v0.3.0.py
 ```
 
 Le programme est entièrement **interactif** : il vous demande dans
@@ -95,7 +101,7 @@ l'ordre les fichiers, paramètres et options nécessaires.
 ### Exemple — benzène (HOMA + LDM)
 
 ```text
-$ python AroX.v0.2.0.py
+$ python AroX.v0.3.0.py
 Entrez le fichier géométrie / distances / trajectoire
 (.xyz, .traj, .dat ou .dt) : examples/Benzen_rho_dist.dat
 Entrez le fichier LDM (.dat) [optionnel]   : examples/Benzen_rho_ldm.dat
@@ -164,7 +170,7 @@ votre installation.
 Si vous utilisez AroX dans un travail académique, merci de citer :
 
 > **Noroozi, A.** (2026). *AroX — Aromaticity Descriptors (HOMA + LDM)*,
-> v0.2.0 [computer software]. Laboratoire de Chimie Théorique (LCT).
+> v0.3.0 [computer software]. Laboratoire de Chimie Théorique (LCT).
 > https://github.com/ariaX1973/AroX-Aromaticity-Descriptors
 
 ### BibTeX
@@ -174,7 +180,7 @@ Si vous utilisez AroX dans un travail académique, merci de citer :
   author      = {Noroozi, Aria},
   title       = {{AroX} --- Aromaticity Descriptors (HOMA + LDM)},
   year        = {2026},
-  version     = {0.2.0},
+  version     = {0.3.0},
   institution = {Laboratoire de Chimie Th{\'e}orique (LCT)},
   url         = {https://github.com/ariaX1973/AroX-Aromaticity-Descriptors}
 }
