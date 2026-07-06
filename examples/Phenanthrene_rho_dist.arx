@@ -1,7 +1,7 @@
 ===============================================================
-                    AroX.v0.3.0 REPORT
+                    AroX.v0.3.1 REPORT
 ===============================================================
- Program name        : AroX.v0.3.0
+ Program name        : AroX.v0.3.1
  Input geometry file : Phenanthrene_rho_dist.dat
  Geometry input type : DIST
  Input LDM file      : Phenanthrene_rho_ldm.dat
@@ -1368,33 +1368,34 @@ FINAL SUMMARY
                     ENTROPY_DESCRIPTORS (H_LDM, H_Q, H_S)
 ====================================================================================================
 Toutes les entropies sont en bits (log2). mu en %.
-Domaine cycle : paires par défaut = contour du cycle.
-Domaine global : atomes lourds (Z > 1) + toutes paires i<j.
+Convention (identique à LDM) : toutes les paires atomiques i<j du domaine.
+Domaine cycle  : atomes du cycle + toutes leurs paires i<j.
+Domaine global : atomes lourds (Z > 1) + toutes leurs paires i<j.
 
 --- Tableau H_LDM (entropie complète : λ_ii + δ_ij) ---
 scope   cycle  atoms                    pairs     Nloc  Ndeloc          L          D   w_loc   w_del   H_part    H_loc    H_del    H_LDM  Hmin_ch  Hmax_rf   mu_raw%  mu_clip%
-cycle   1      [1, 2, 3, 4, 13, 14]     contour      6       6    23.6832     4.0304  0.8546  0.1454   0.5983   2.5848   2.5821   3.1827   2.5847   3.5850    59.785    59.785
-cycle   2      [4, 5, 6, 7, 12, 13]     contour      6       6    23.4810     3.7930  0.8609  0.1391   0.5818   2.5848   2.5761   3.1654   2.5847   3.5850    58.058    58.058
-cycle   3      [7, 8, 9, 10, 11, 12]    contour      6       6    23.6831     4.0304  0.8546  0.1454   0.5983   2.5848   2.5821   3.1827   2.5847   3.5850    59.785    59.785
-cycle   4      [1, 2, 3, 4, 5, 6, ...]  contour     10      10    39.4063     6.5736  0.8570  0.1430   0.5920   3.3218   3.3146   3.9127   3.3215   4.3219    59.097    59.097
-cycle   5      [4, 5, 6, 7, 8, 9, ...]  contour     10      10    39.4062     6.5736  0.8570  0.1430   0.5920   3.3218   3.3146   3.9127   3.3215   4.3219    59.097    59.097
-cycle   6      [1, 2, 3, 4, 5, 6, ...]  contour     14      14    55.3315     9.3542  0.8554  0.1446   0.5962   3.8072   3.8013   4.4026   3.8072   4.8074    59.527    59.527
+cycle   1      [1, 2, 3, 4, 13, 14]     all          6      15    23.6832     4.3527  0.8447  0.1553   0.6228   2.5848   3.0054   3.2730   2.5847   4.3923    38.074    38.074
+cycle   2      [4, 5, 6, 7, 12, 13]     all          6      15    23.4810     4.0357  0.8533  0.1467   0.6014   2.5848   2.9386   3.2381   2.5847   4.3923    36.151    36.151
+cycle   3      [7, 8, 9, 10, 11, 12]    all          6      15    23.6831     4.3527  0.8447  0.1553   0.6228   2.5848   3.0054   3.2730   2.5847   4.3923    38.074    38.074
+cycle   4      [1, 2, 3, 4, 5, 6, ...]  all         10      45    39.4063     7.9086  0.8329  0.1671   0.6511   3.3218   4.0025   4.0867   3.3215   5.7814    31.108    31.108
+cycle   5      [4, 5, 6, 7, 8, 9, ...]  all         10      45    39.4062     7.9086  0.8329  0.1671   0.6511   3.3218   4.0025   4.0867   3.3215   5.7814    31.108    31.108
+cycle   6      [1, 2, 3, 4, 5, 6, ...]  all         14      91    55.3315    11.8167  0.8240  0.1760   0.6712   3.8072   4.6347   4.6241   3.8072   6.7142    28.100    28.100
 global  -      [1, 2, 3, 4, 5, 6, ...]  all         14      91    55.3315    11.8167  0.8240  0.1760   0.6712   3.8072   4.6347   4.6241   3.8072   6.7142    28.100    28.100
 
 --- Tableau H_Q et H_S (entropies de délocalisation pondérées) ---
 scope   cycle  atoms                    pairs    descr  Ndeloc        D_w        H    H_max     mu % weighting     
-cycle   1      [1, 2, 3, 4, 13, 14]     contour  H_Q         6     2.8760   2.5809   2.5850   99.842 delta_ij/R_ij 
-cycle   1      [1, 2, 3, 4, 13, 14]     contour  H_S         6     5.6491   2.5831   2.5850   99.929 delta_ij*R_ij 
-cycle   2      [4, 5, 6, 7, 12, 13]     contour  H_Q         6     2.6757   2.5718   2.5850   99.491 delta_ij/R_ij 
-cycle   2      [4, 5, 6, 7, 12, 13]     contour  H_S         6     5.3798   2.5795   2.5850   99.787 delta_ij*R_ij 
-cycle   3      [7, 8, 9, 10, 11, 12]    contour  H_Q         6     2.8760   2.5809   2.5850   99.842 delta_ij/R_ij 
-cycle   3      [7, 8, 9, 10, 11, 12]    contour  H_S         6     5.6491   2.5831   2.5850   99.929 delta_ij*R_ij 
-cycle   4      [1, 2, 3, 4, 5, 6, ...]  contour  H_Q        10     4.6743   3.3112   3.3219   99.678 delta_ij/R_ij 
-cycle   4      [1, 2, 3, 4, 5, 6, ...]  contour  H_S        10     9.2487   3.3173   3.3219   99.860 delta_ij*R_ij 
-cycle   5      [4, 5, 6, 7, 8, 9, ...]  contour  H_Q        10     4.6743   3.3112   3.3219   99.678 delta_ij/R_ij 
-cycle   5      [4, 5, 6, 7, 8, 9, ...]  contour  H_S        10     9.2487   3.3173   3.3219   99.860 delta_ij*R_ij 
-cycle   6      [1, 2, 3, 4, 5, 6, ...]  contour  H_Q        14     6.6728   3.7986   3.8074   99.769 delta_ij/R_ij 
-cycle   6      [1, 2, 3, 4, 5, 6, ...]  contour  H_S        14    13.1176   3.8035   3.8074   99.898 delta_ij*R_ij 
+cycle   1      [1, 2, 3, 4, 13, 14]     all      H_Q        15     3.0020   2.8565   3.9069   73.115 delta_ij/R_ij 
+cycle   1      [1, 2, 3, 4, 13, 14]     all      H_S        15     6.4773   3.2061   3.9069   82.063 delta_ij*R_ij 
+cycle   2      [4, 5, 6, 7, 12, 13]     all      H_Q        15     2.7705   2.8063   3.9069   71.830 delta_ij/R_ij 
+cycle   2      [4, 5, 6, 7, 12, 13]     all      H_S        15     6.0036   3.1206   3.9069   79.875 delta_ij*R_ij 
+cycle   3      [7, 8, 9, 10, 11, 12]    all      H_Q        15     3.0020   2.8565   3.9069   73.115 delta_ij/R_ij 
+cycle   3      [7, 8, 9, 10, 11, 12]    all      H_S        15     6.4773   3.2061   3.9069   82.063 delta_ij*R_ij 
+cycle   4      [1, 2, 3, 4, 5, 6, ...]  all      H_Q        45     5.3784   3.7909   5.4919   69.028 delta_ij/R_ij 
+cycle   4      [1, 2, 3, 4, 5, 6, ...]  all      H_S        45    12.0967   4.3154   5.4919   78.578 delta_ij*R_ij 
+cycle   5      [4, 5, 6, 7, 8, 9, ...]  all      H_Q        45     5.3784   3.7909   5.4919   69.028 delta_ij/R_ij 
+cycle   5      [4, 5, 6, 7, 8, 9, ...]  all      H_S        45    12.0967   4.3154   5.4919   78.578 delta_ij*R_ij 
+cycle   6      [1, 2, 3, 4, 5, 6, ...]  all      H_Q        91     7.9946   4.3809   6.5078   67.318 delta_ij/R_ij 
+cycle   6      [1, 2, 3, 4, 5, 6, ...]  all      H_S        91    18.3560   5.0261   6.5078   77.231 delta_ij*R_ij 
 global  -      [1, 2, 3, 4, 5, 6, ...]  all      H_Q        91     7.9946   4.3809   6.5078   67.318 delta_ij/R_ij 
 global  -      [1, 2, 3, 4, 5, 6, ...]  all      H_S        91    18.3560   5.0261   6.5078   77.231 delta_ij*R_ij 
 ====================================================================================================

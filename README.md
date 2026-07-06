@@ -7,7 +7,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/)
-[![Version](https://img.shields.io/badge/version-0.3.0-green.svg)](AroX.v0.3.0.py)
+[![Version](https://img.shields.io/badge/version-0.3.1-green.svg)](AroX.v0.3.1.py)
 
 ---
 
@@ -92,7 +92,7 @@ Python ≥ 3.8 suffit (annotations de type modernes utilisées).
 ## Démarrage rapide
 
 ```bash
-python AroX.v0.3.0.py
+python AroX.v0.3.1.py
 ```
 
 Le programme est entièrement **interactif** : il vous demande dans
@@ -101,7 +101,7 @@ l'ordre les fichiers, paramètres et options nécessaires.
 ### Exemple — benzène (HOMA + LDM)
 
 ```text
-$ python AroX.v0.3.0.py
+$ python AroX.v0.3.1.py
 Entrez le fichier géométrie / distances / trajectoire
 (.xyz, .traj, .dat ou .dt) : examples/Benzen_rho_dist.dat
 Entrez le fichier LDM (.dat) [optionnel]   : examples/Benzen_rho_ldm.dat
@@ -170,7 +170,7 @@ votre installation.
 Si vous utilisez AroX dans un travail académique, merci de citer :
 
 > **Noroozi, A.** (2026). *AroX — Aromaticity Descriptors (HOMA + LDM)*,
-> v0.3.0 [computer software]. Laboratoire de Chimie Théorique (LCT).
+> v0.3.1 [computer software]. Laboratoire de Chimie Théorique (LCT).
 > https://github.com/ariaX1973/AroX-Aromaticity-Descriptors
 
 ### BibTeX
@@ -180,7 +180,7 @@ Si vous utilisez AroX dans un travail académique, merci de citer :
   author      = {Noroozi, Aria},
   title       = {{AroX} --- Aromaticity Descriptors (HOMA + LDM)},
   year        = {2026},
-  version     = {0.3.0},
+  version     = {0.3.1},
   institution = {Laboratoire de Chimie Th{\'e}orique (LCT)},
   url         = {https://github.com/ariaX1973/AroX-Aromaticity-Descriptors}
 }

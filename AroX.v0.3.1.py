@@ -3,14 +3,14 @@
 # ==============================================================
 #  Author      : Aria Noroozi
 #  Affiliation : Laboratoire de Chimie Théorique (LCT), 2026
-#  Version     : 0.3.0
+#  Version     : 0.3.1
 #  License     : MIT (see LICENSE file)
 #  Repository  : https://github.com/ariaX1973/AroX-Aromaticity-Descriptors
 #
 #  How to cite
 #  -----------
 #  Noroozi, A. (2026). AroX — Aromaticity Descriptors (HOMA + LDM),
-#  v0.3.0 [computer software]. Laboratoire de Chimie Théorique (LCT).
+#  v0.3.1 [computer software]. Laboratoire de Chimie Théorique (LCT).
 #  https://github.com/ariaX1973/AroX-Aromaticity-Descriptors
 #
 #  BibTeX
@@ -19,7 +19,7 @@
 #    author      = {Noroozi, Aria},
 #    title       = {{AroX} --- Aromaticity Descriptors (HOMA + LDM)},
 #    year        = {2026},
-#    version     = {0.3.0},
+#    version     = {0.3.1},
 #    institution = {Laboratoire de Chimie Th{\'e}orique (LCT)},
 #    url         = {https://github.com/ariaX1973/AroX-Aromaticity-Descriptors}
 #  }
@@ -3190,9 +3190,11 @@ def enregistrer_fichier_ldm(
 #   - H_Q   : entropie de délocalisation pondérée par 1/R_ij.
 #   - H_S   : entropie de délocalisation pondérée par R_ij.
 #
-# Chaque descripteur est calculé sur deux domaines :
-#   - local  : atomes d'un cycle détecté  (paires par défaut = contour)
-#   - global : atomes lourds du graphe    (paires par défaut = toutes)
+# Chaque descripteur est calculé sur deux domaines. Même convention
+# de paires qu'en LDM : toutes les paires atomiques possibles dans
+# chaque domaine.
+#   - local  : atomes d'un cycle détecté   → toutes paires i<j du cycle
+#   - global : atomes lourds du graphe (G) → toutes paires i<j lourds
 #
 # Convention d'indexation : indices_cycle est en base 1 (identifiants
 # d'atomes affichés à l'utilisateur) ; les matrices numpy sont indexées
@@ -3200,8 +3202,7 @@ def enregistrer_fichier_ldm(
 # ============================================================
 
 ENTROPY_EPSILON = 1.0e-12
-ENTROPY_H_LDM_LOCAL_MODE_DEFAUT = "contour"
-ENTROPY_H_QS_LOCAL_MODE_DEFAUT = "contour"
+ENTROPY_LOCAL_MODE_DEFAUT = "all"
 ENTROPY_GLOBAL_MODE_DEFAUT = "all"
 
 
@@ -3233,17 +3234,6 @@ def entropy_compute_shannon_bits(valeurs) -> float:
 def entropy_liste_atomes_lourds(numeros_atomiques) -> List[int]:
     # Renvoie les indices base 1 des atomes lourds (Z > 1).
     return [i + 1 for i, z in enumerate(numeros_atomiques) if z > 1]
-
-
-def entropy_paires_contour_cycle(indices_cycle) -> List[Tuple[int, int]]:
-    # Paires (i, j) du contour du cycle, indices base 1, sans doublon.
-    n = len(indices_cycle)
-    paires = []
-    for pos in range(n):
-        a = indices_cycle[pos]
-        b = indices_cycle[(pos + 1) % n]
-        paires.append(tuple(sorted((a, b))))
-    return paires
 
 
 def entropy_paires_toutes_dans_ensemble(atomes) -> List[Tuple[int, int]]:
@@ -3428,7 +3418,9 @@ def entropy_analyser_cycle(matrice_ldm, matrice_distances, cycle_info) -> Dict[s
     numero_cycle = cycle_info.get("numero_cycle", 0)
 
     atomes = list(indices_cycle)
-    paires = entropy_paires_contour_cycle(indices_cycle)
+    # Convention identique au LDM : toutes les paires i<j entre atomes du cycle
+    # (donc les cordes internes en plus des liaisons du contour).
+    paires = entropy_paires_toutes_dans_ensemble(atomes)
 
     resultat_H_LDM = entropy_calculer_H_LDM(matrice_ldm, atomes, paires)
     resultat_H_Q = entropy_calculer_H_pondere(matrice_ldm, matrice_distances, paires, "Q")
@@ -3438,7 +3430,7 @@ def entropy_analyser_cycle(matrice_ldm, matrice_distances, cycle_info) -> Dict[s
         "scope": "cycle",
         "cycle_id": numero_cycle,
         "atoms": atomes,
-        "pairs_mode": ENTROPY_H_LDM_LOCAL_MODE_DEFAUT,
+        "pairs_mode": ENTROPY_LOCAL_MODE_DEFAUT,
         "H_LDM": resultat_H_LDM,
         "H_Q": resultat_H_Q,
         "H_S": resultat_H_S
@@ -3490,8 +3482,9 @@ def entropy_ecrire_section(fichier, resultats_entropie) -> None:
     fichier.write("                    ENTROPY_DESCRIPTORS (H_LDM, H_Q, H_S)\n")
     fichier.write("=" * 100 + "\n")
     fichier.write("Toutes les entropies sont en bits (log2). mu en %.\n")
-    fichier.write("Domaine cycle : paires par défaut = contour du cycle.\n")
-    fichier.write("Domaine global : atomes lourds (Z > 1) + toutes paires i<j.\n")
+    fichier.write("Convention (identique à LDM) : toutes les paires atomiques i<j du domaine.\n")
+    fichier.write("Domaine cycle  : atomes du cycle + toutes leurs paires i<j.\n")
+    fichier.write("Domaine global : atomes lourds (Z > 1) + toutes leurs paires i<j.\n")
     fichier.write("\n")
 
     # --- Tableau H_LDM complet ---
@@ -4216,10 +4209,10 @@ def generer_nom_fichier_integre(nom_fichier_ldm: str) -> str:
 
 
 # ============================================================
-# AroX v0.3.0 — STATIC HOMA+LDM + HOMA MD TRAJECTORY MODE
+# AroX v0.3.1 — STATIC HOMA+LDM + HOMA MD TRAJECTORY MODE
 # ============================================================
 
-PROGRAM_NAME = "AroX.v0.3.0"
+PROGRAM_NAME = "AroX.v0.3.1"
 
 SYMBOL_TO_Z_AROX = {
     "H": 1, "C": 6, "N": 7, "O": 8, "F": 9,
@@ -4673,7 +4666,7 @@ def arox_ecrire_fichier_homa_trajectoire(
         f.write(" Cycle tracking      : cycles detected/forced on the first frame, then followed by atom indices\n")
         f.write(" Shared cycles       : AUTO cycles + optional free MANUAL cycles + generated FUSED cycles\n")
         f.write(" Fused cycle rule    : symmetric difference of auto/manual cycle edges\n")
-        f.write(" LDM mode            : disabled for trajectory input in v0.3.0\n")
+        f.write(" LDM mode            : disabled for trajectory input in v0.3.1\n")
         f.write("===============================================================\n\n")
 
         f.write(" Parameters used for HOMA\n")
